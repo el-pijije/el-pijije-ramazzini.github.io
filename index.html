@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config={theme:{extend:{colors:{brand:{50:'#EBF5FF',100:'#D6EBFF',200:'#ADD6FF',300:'#85C2FF',400:'#5CADFF',500:'#3399FF',600:'#2B7DE9',700:'#1A5BB5',800:'#0F3D7A',900:'#0A264F'},surface:{50:'#F8FBFF',100:'#F0F6FF',200:'#E8F0FA'},accent:{500:'#00C853',600:'#00A844'}},fontFamily:{sans:['Inter','sans-serif']}}}}
     </script>
@@ -49,6 +51,10 @@
         ::-webkit-scrollbar{width:6px}
         ::-webkit-scrollbar-track{background:transparent}
         ::-webkit-scrollbar-thumb{background:#ADD6FF;border-radius:3px}
+        /* Admin panel */
+        .admin-tab{transition:all .2s}
+        .admin-tab.active{border-bottom:2px solid #2B7DE9;color:#0F3D7A;font-weight:600}
+        .stat-card{background:linear-gradient(135deg,#EBF5FF,#F8FBFF);border:1px solid #ADD6FF;border-radius:16px;padding:20px}
     </style>
 </head>
 <body class="bg-white text-brand-900">
@@ -65,6 +71,7 @@
                 <a href="#video" class="text-sm font-medium text-brand-800 hover:text-brand-600 flex items-center gap-1"><i data-lucide="play-circle" class="w-3.5 h-3.5"></i>Cómo trabajamos</a>
                 <a href="#planes" class="text-sm font-medium text-brand-800 hover:text-brand-600">Planes</a>
                 <a href="#contacto" class="text-sm font-medium text-brand-800 hover:text-brand-600">Contacto</a>
+                <button onclick="toggleAdmin()" class="text-sm font-medium text-brand-400 hover:text-brand-600 flex items-center gap-1"><i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>Admin</button>
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="toggleCart()" class="relative p-2.5 rounded-full hover:bg-brand-50 transition-colors">
@@ -95,6 +102,7 @@
         </div>
         <div class="max-w-5xl mx-auto px-6">
             <div class="text-center mb-12">
+                <p class="text-white mt-3 max-w-2xl mx-auto">Calidad, confianza y soporte técnico profesional en cada servicio.</p>
             </div>
             <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-brand-200/30 border-4 border-brand-100 aspect-video bg-brand-900">
                 <video controls class="absolute inset-0 w-full h-full object-contain bg-brand-900">
@@ -136,7 +144,6 @@
                     Tu navegador no soporta el elemento de video.
                 </video>
             </div>
-            <p></p>
             <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-brand-200/30 border-4 border-brand-100 aspect-video bg-brand-900 mt-8">
                 <video controls class="absolute inset-0 w-full h-full object-contain bg-brand-900">
                     <source src="Servicio Técnico de Computadoras 1.mp4" type="video/mp4">
@@ -220,35 +227,29 @@
                 <h3 class="text-xl font-bold text-white">Finalizar Pedido</h3>
                 <p class="text-brand-100 text-sm mt-1">Completa tus datos</p>
             </div>
-            <form id="checkoutForm" action="https://formspree.io/f/xjglqkdw" method="POST" class="p-6 space-y-4">
-                <input type="hidden" name="_subject" id="formSubject" value="🛒 Nuevo Pedido — Ramazzini">
-                <input type="hidden" name="pedido_id" id="formPedidoId">
-                <input type="hidden" name="fecha" id="formFecha">
-                <input type="hidden" name="productos" id="formProductos">
-                <input type="hidden" name="total" id="formTotal">
-                <input type="hidden" name="metodo_pago" id="formMetodoPago">
+            <div class="p-6 space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-brand-900 mb-1">Nombre completo *</label>
-                    <input type="text" name="nombre" id="custName" required class="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100">
+                    <input type="text" id="custName" required class="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-brand-900 mb-1">Teléfono *</label>
-                        <input type="tel" name="telefono" id="custPhone" required class="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100">
+                        <input type="tel" id="custPhone" required class="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-brand-900 mb-1">Correo</label>
-                        <input type="email" name="email" id="custEmail" class="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100">
+                        <input type="email" id="custEmail" class="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100">
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-brand-900 mb-1">Dirección de envío *</label>
-                    <textarea name="direccion" id="custAddress" required rows="2" class="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 resize-none"></textarea>
+                    <textarea id="custAddress" required rows="2" class="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 resize-none"></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-brand-900 mb-2">Método de pago *</label>
                     <div class="grid grid-cols-2 gap-3">
-                        <label class="flex items-center gap-2 border border-brand-200 rounded-xl p-3 cursor-pointer hover:bg-brand-50 transition-colors"><input type="radio" name="pago_seleccion" value="Efectivo" required class="accent-brand-600"><span class="text-sm font-medium">💵 Efectivo</span></label>
+                        <label class="flex items-center gap-2 border border-brand-200 rounded-xl p-3 cursor-pointer hover:bg-brand-50 transition-colors"><input type="radio" name="pago_seleccion" value="Efectivo" class="accent-brand-600"><span class="text-sm font-medium">💵 Efectivo</span></label>
                         <label class="flex items-center gap-2 border border-brand-200 rounded-xl p-3 cursor-pointer hover:bg-brand-50 transition-colors"><input type="radio" name="pago_seleccion" value="Transferencia" class="accent-brand-600"><span class="text-sm font-medium">🏦 Transferencia</span></label>
                         <label class="flex items-center gap-2 border border-brand-200 rounded-xl p-3 cursor-pointer hover:bg-brand-50 transition-colors"><input type="radio" name="pago_seleccion" value="Tarjeta" class="accent-brand-600"><span class="text-sm font-medium">💳 Tarjeta</span></label>
                     </div>
@@ -260,12 +261,12 @@
                 <div id="checkoutError" class="hidden text-red-600 text-sm text-center font-medium"></div>
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="closeCheckoutModal()" class="flex-1 py-3 border-2 border-brand-200 text-brand-700 font-medium rounded-full hover:bg-brand-50">Cancelar</button>
-                    <button type="submit" id="submitBtn" class="flex-1 py-3 bg-accent-500 hover:bg-accent-600 text-white font-semibold rounded-full flex items-center justify-center gap-2">
+                    <button type="button" onclick="submitOrder()" id="submitBtn" class="flex-1 py-3 bg-accent-500 hover:bg-accent-600 text-white font-semibold rounded-full flex items-center justify-center gap-2">
                         <i data-lucide="send" class="w-4 h-4"></i>
                         <span id="submitBtnText">Confirmar Pedido</span>
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
@@ -276,6 +277,60 @@
             <h3 class="text-xl font-bold text-brand-900 mb-2">¡Pedido confirmado!</h3>
             <p class="text-brand-600 text-sm mb-6">Tu pedido fue enviado exitosamente. Te contactaremos pronto.</p>
             <button onclick="closeSuccessModal()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-full">Entendido</button>
+        </div>
+    </div>
+
+    <!-- ===== PANEL ADMIN ===== -->
+    <div id="adminModal" class="fixed inset-0 z-[80] hidden items-center justify-center bg-black/60 p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full mx-auto my-6 overflow-hidden animate-slide-up">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-brand-800 to-brand-600 p-6 flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2"><i data-lucide="bar-chart-2" class="w-5 h-5"></i> Panel de Ventas</h3>
+                    <p class="text-brand-200 text-sm mt-0.5">Ramazzini — Control de pedidos en tiempo real</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="loadAdminData()" class="bg-white/10 hover:bg-white/20 text-white text-sm px-4 py-2 rounded-full flex items-center gap-2 transition-all"><i data-lucide="refresh-cw" class="w-4 h-4"></i>Actualizar</button>
+                    <button onclick="exportCSV()" class="bg-white/10 hover:bg-white/20 text-white text-sm px-4 py-2 rounded-full flex items-center gap-2 transition-all"><i data-lucide="download" class="w-4 h-4"></i>CSV</button>
+                    <button onclick="closeAdmin()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"><i data-lucide="x" class="w-5 h-5 text-white"></i></button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 bg-surface-50 border-b border-brand-100">
+                <div class="stat-card text-center">
+                    <p class="text-xs text-brand-500 uppercase tracking-wider mb-1">Pedidos</p>
+                    <p class="text-3xl font-bold text-brand-900" id="adminTotalOrders">—</p>
+                </div>
+                <div class="stat-card text-center">
+                    <p class="text-xs text-brand-500 uppercase tracking-wider mb-1">Ingresos</p>
+                    <p class="text-3xl font-bold text-brand-900" id="adminRevenue">—</p>
+                </div>
+                <div class="stat-card text-center">
+                    <p class="text-xs text-brand-500 uppercase tracking-wider mb-1">Unidades</p>
+                    <p class="text-3xl font-bold text-brand-900" id="adminUnits">—</p>
+                </div>
+                <div class="stat-card text-center">
+                    <p class="text-xs text-brand-500 uppercase tracking-wider mb-1">Ticket Prom.</p>
+                    <p class="text-3xl font-bold text-brand-900" id="adminAvg">—</p>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex border-b border-brand-100 px-6 bg-white">
+                <button class="admin-tab active py-4 px-4 text-sm mr-2" onclick="switchAdminTab('orders')">Pedidos recientes</button>
+                <button class="admin-tab py-4 px-4 text-sm text-brand-500 mr-2" onclick="switchAdminTab('products')">Productos más vendidos</button>
+                <button class="admin-tab py-4 px-4 text-sm text-brand-500" onclick="switchAdminTab('sql')">Consulta SQL</button>
+            </div>
+
+            <div class="p-6 min-h-[320px]" id="adminContent">
+                <div class="flex items-center justify-center h-40">
+                    <div class="text-center">
+                        <div class="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3"></div>
+                        <p class="text-brand-400 text-sm">Cargando datos...</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -293,42 +348,42 @@
     </div>
 
     <script>
+    // ===== SUPABASE CONFIG =====
+    const SUPABASE_URL = 'https://tflxsmwpktzvhmlywncc.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_IgLkVunJS69mzZCG1MQwtQ_ZLKXotn7';
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
     lucide.createIcons();
     const L='https://z-cdn-media.chatglm.cn/files/e91ee27d-42dd-4a02-b571-86fb1ca069c7.png?auth_key=1878721737-611f94ca45ca482b9c8f80992bd09479-0-0d21749fbe9c1ca0045e797e095feec8';
 
-    // ===== PRODUCTOS — Agrega el link de imagen en la propiedad "image" =====
+    // ===== PRODUCTOS =====
     const products=[
-        // ── RAM ──
         {id:1,name:'Memoria RAM DDR4 8GB 2666MHz',category:'ram',price:275,oldPrice:350,image:'https://cdn.kemik.gt/2023/03/CT8G4SFRA266-MEMORIA-RAM-DDR4-1200X1200-1-1-526x526.-500x500.jpg',badge:'Popular',stock:25},
         {id:2,name:'Memoria RAM DDR4 16GB 3200MHz',category:'ram',price:475,oldPrice:null,image:'https://cdn.kemik.gt/2023/11/BRDDR4PC832NTB-BROCS-1200x1200-01.-500x500.jpg',badge:null,stock:18},
         {id:3,name:'Memoria RAM DDR5 32GB 4800MHz',category:'ram',price:875,oldPrice:1100,image:'https://cdn.kemik.gt/2023/08/AD5S480032G-S-1200x1200-1.-500x500.jpg',badge:'Nuevo',stock:10},
         {id:4,name:'Memoria RAM DDR4 4GB 2400MHz',category:'ram',price:145,oldPrice:null,image:'https://www.360.gt/wp-content/uploads/2018/08/01-HYNIX-4GB-2400MHZ.jpg',badge:null,stock:35},
         {id:5,name:'Memoria RAM DDR5 16GB 5600MHz',category:'ram',price:675,oldPrice:800,image:'https://www.intelaf.com/images/productos/gran/NOT-DR5KN1648FI.jpg',badge:'Oferta',stock:14},
-        // ── DISCOS ──
         {id:6,name:'SSD SATA 480GB 2.5" 7mm',category:'disco',price:295,oldPrice:null,image:'https://img.pacifiko.com/PROD/resize/1/500x500/B09TN1VKZL.jpg',badge:null,stock:30},
         {id:7,name:'SSD NVMe M.2 1TB PCIe Gen4',category:'disco',price:595,oldPrice:750,image:'https://img.pacifiko.com/PROD/resize/1/500x500/MDY0MmI2NT.jpg',badge:'Oferta',stock:15},
         {id:8,name:'HDD Seagate Barracuda 2TB',category:'disco',price:395,oldPrice:null,image:'https://img.pacifiko.com/PROD/resize/1/1000x1000/N2MyNWRmMT.png',badge:null,stock:22},
         {id:9,name:'SSD SATA 240GB 2.5"',category:'disco',price:175,oldPrice:220,image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQJIfO41reF2DSsrZM6IKgFqLUEjoSLfy5fA&s',badge:'Económico',stock:40},
         {id:10,name:'SSD NVMe M.2 512GB PCIe Gen3',category:'disco',price:425,oldPrice:null,image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsYa6ePr2UssMluDygcNqEpvEK1Fquv4FUgg&s',badge:null,stock:20},
         {id:11,name:'HDD WD Blue 1TB 7200RPM',category:'disco',price:225,oldPrice:null,image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTteMkmYnmrL58UhmyvslNnw7JBjxzgUjQf_Q&s',badge:null,stock:28},
-        // ── FUENTES ──
         {id:12,name:'Fuente de Poder 600W 80+',category:'fuente',price:525,oldPrice:650,image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYM8--8vs4VG3DbfGv7KJlQzxuWonAEpnDww&s',badge:null,stock:12},
         {id:13,name:'Fuente de Poder 800W Modular',category:'fuente',price:795,oldPrice:null,image:'https://cdn.kemik.gt/2023/07/200-GE-0800-V1-FUENTE-DE-PODER-EVGA-1200X1200-1.-500x500.jpg',badge:'Premium',stock:8},
         {id:14,name:'Fuente de Poder 500W 80+ White',category:'fuente',price:395,oldPrice:480,image:'https://cdn.kemik.gt/2019/04/image-1-1-526x526.jpg',badge:'Económico',stock:18},
         {id:15,name:'Fuente de Poder 1000W 80+ Gold',category:'fuente',price:1195,oldPrice:null,image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsU-L4iJLDfYVdnEvJS_6-QnhA1rJhg0iLUg&s',badge:'Pro',stock:5},
-        // ── VENTILADORES ──
         {id:16,name:'Ventilador CPU Cooler 120mm',category:'ventilador',price:155,oldPrice:195,image:'https://i.ebayimg.com/images/g/iC8AAeSwZU5p4EcW/s-l1200.webp',badge:null,stock:40},
         {id:17,name:'Kit Ventiladores RGB 3x 120mm',category:'ventilador',price:345,oldPrice:null,image:'https://img.pacifiko.com/PROD/resize/1/500x500/B0C64WLQSK.jpg',badge:'Popular',stock:20},
         {id:18,name:'Ventilador CPU Cooler 92mm',category:'ventilador',price:115,oldPrice:null,image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSr9uKafFRorTiymJqeGZ3zZBZdEBB-MDdpYw&s',badge:null,stock:30},
         {id:19,name:'Disipador Líquido AIO 240mm RGB',category:'ventilador',price:695,oldPrice:850,image:'https://www.macrosistemas.com/wp-content/uploads/1298-1-1.jpg',badge:'Nuevo',stock:7},
-        // ── CABLES ──
         {id:20,name:'Cable HDMI 2.1 Ultra High Speed 2m',category:'cable',price:75,oldPrice:null,image:'',badge:null,stock:50},
         {id:21,name:'Cable SATA III 6Gbps Pack x3',category:'cable',price:55,oldPrice:85,image:'',badge:'Oferta',stock:60},
         {id:22,name:'Cable DisplayPort 1.4 8K 2m',category:'cable',price:95,oldPrice:null,image:'',badge:null,stock:45},
         {id:23,name:'Cable USB-C a USB-C 100W 1m',category:'cable',price:65,oldPrice:null,image:'',badge:null,stock:55},
         {id:24,name:'Cable de Poder AC 1.5m',category:'cable',price:45,oldPrice:null,image:'',badge:null,stock:70},
         {id:25,name:'Cable VGA HD15 1.8m',category:'cable',price:55,oldPrice:75,image:'',badge:'Económico',stock:40},
-        // ── TARJETAS ──
         {id:26,name:'Tarjeta de Video RX 6600 8GB',category:'tarjeta',price:2195,oldPrice:2495,image:'',badge:'Oferta',stock:5},
         {id:27,name:'Tarjeta de Red WiFi 6 PCIe',category:'tarjeta',price:235,oldPrice:null,image:'',badge:'Nuevo',stock:35},
         {id:28,name:'Tarjeta de Sonido 7.1 PCIe',category:'tarjeta',price:275,oldPrice:350,image:'',badge:null,stock:15},
@@ -336,7 +391,6 @@
         {id:30,name:'Tarjeta de Red Ethernet PCIe Gigabit',category:'tarjeta',price:125,oldPrice:null,image:'',badge:null,stock:30}
     ];
 
-    // Imagen placeholder para productos sin imagen
     function getProductImage(p){
         if(p.image) return p.image;
         return `https://placehold.co/400x300/EBF5FF/2B7DE9?text=${encodeURIComponent(p.name.split(' ').slice(0,3).join(' '))}`;
@@ -370,7 +424,6 @@
     function addToCart(id){const p=products.find(x=>x.id===id);const e=cart.find(x=>x.id===id);if(e){if(e.qty<p.stock)e.qty++}else{cart.push({id,qty:1})}updateCartUI();renderProducts(currentFilter);const el=document.getElementById('product-'+id);if(el){el.classList.add('added-flash');setTimeout(()=>el.classList.remove('added-flash'),600)}}
     function removeFromCart(id){cart=cart.filter(c=>c.id!==id);updateCartUI();renderProducts(currentFilter)}
     function changeQty(id,d){const i=cart.find(c=>c.id===id);const p=products.find(x=>x.id===id);if(!i)return;i.qty+=d;if(i.qty<=0){removeFromCart(id);return}if(i.qty>p.stock)i.qty=p.stock;updateCartUI();renderProducts(currentFilter)}
-    function clearCart(){cart=[];updateCartUI();renderProducts(currentFilter)}
 
     function updateCartUI(){
         const badge=document.getElementById('cartBadge'),count=document.getElementById('cartCount'),pCount=document.getElementById('cartPanelCount'),items=document.getElementById('cartItems'),footer=document.getElementById('cartFooter'),total=document.getElementById('cartTotal');
@@ -384,143 +437,284 @@
     let cartOpen=false;
     function toggleCart(){cartOpen=!cartOpen;const p=document.getElementById('cartPanel'),o=document.getElementById('cartOverlay');if(cartOpen){p.classList.remove('hidden-cart');p.classList.add('visible-cart');o.classList.remove('hidden')}else{p.classList.add('hidden-cart');p.classList.remove('visible-cart');o.classList.add('hidden')}}
 
-    // CHECKOUT
+    // CHECKOUT — ahora guarda en Supabase
     function openCheckoutModal(){
         if(!cart.length)return;
         toggleCart();
         const tP=cart.reduce((s,c)=>{const p=products.find(x=>x.id===c.id);return s+(p.price*c.qty)},0);
-        const orderId=Date.now();
-        const orderDate=new Date().toLocaleString('es-GT');
         document.getElementById('checkoutSummary').innerHTML=cart.map(c=>{
             const p=products.find(x=>x.id===c.id);
             return`<div class="flex justify-between"><span class="text-brand-600">${p.name} x${c.qty}</span><span class="font-semibold">Q${(p.price*c.qty).toFixed(2)}</span></div>`;
         }).join('')+`<div class="border-t border-brand-200 mt-2 pt-2 flex justify-between font-bold text-brand-900"><span>Total</span><span>Q${tP.toFixed(2)}</span></div>`;
-        document.getElementById('formSubject').value=`🛒 Nuevo Pedido #${orderId} — Ramazzini`;
-        document.getElementById('formPedidoId').value=orderId;
-        document.getElementById('formFecha').value=orderDate;
-        document.getElementById('formTotal').value='Q'+tP.toFixed(2);
-        const itemsText=cart.map(c=>{const p=products.find(x=>x.id===c.id);return`• ${p.name} x${c.qty} = Q${(p.price*c.qty).toFixed(2)}`}).join('\n');
-        document.getElementById('formProductos').value=itemsText;
         const m=document.getElementById('checkoutModal');m.classList.remove('hidden');m.classList.add('flex');lucide.createIcons();
     }
     function closeCheckoutModal(){document.getElementById('checkoutModal').classList.add('hidden');document.getElementById('checkoutModal').classList.remove('flex');document.getElementById('checkoutError').classList.add('hidden')}
 
-    document.addEventListener('DOMContentLoaded',function(){
-        const form=document.getElementById('checkoutForm');
-        form.addEventListener('submit',function(e){
-            e.preventDefault();
-            const errEl=document.getElementById('checkoutError');
-            const paymentRadio=document.querySelector('input[name="pago_seleccion"]:checked');
-            if(!paymentRadio){errEl.textContent='Selecciona un método de pago';errEl.classList.remove('hidden');return}
-            document.getElementById('formMetodoPago').value=paymentRadio.value;
-            errEl.classList.add('hidden');
-            const submitBtn=document.getElementById('submitBtn');
-            const submitBtnText=document.getElementById('submitBtnText');
-            submitBtn.disabled=true;submitBtn.classList.add('opacity-70','cursor-not-allowed');submitBtnText.textContent='Enviando...';
-            const formData=new FormData(form);
-            fetch(form.action,{method:'POST',body:formData,headers:{'Accept':'application/json'}})
-            .then(response=>{
-                if(response.ok){
-                    const tP=cart.reduce((s,c)=>{const p=products.find(x=>x.id===c.id);return s+(p.price*c.qty)},0);
-                    const order={id:document.getElementById('formPedidoId').value,date:document.getElementById('formFecha').value,status:'pendiente',customer:{name:document.getElementById('custName').value,phone:document.getElementById('custPhone').value,email:document.getElementById('custEmail').value,address:document.getElementById('custAddress').value,payment:paymentRadio.value},items:cart.map(c=>{const p=products.find(x=>x.id===c.id);return{name:p.name,qty:c.qty,price:p.price}}),total:tP};
-                    let orders=JSON.parse(localStorage.getItem('ramazzini_orders'))||[];
-                    orders.push(order);localStorage.setItem('ramazzini_orders',JSON.stringify(orders));
-                    closeCheckoutModal();form.reset();cart=[];updateCartUI();renderProducts(currentFilter);
-                    const s=document.getElementById('successModal');s.classList.remove('hidden');s.classList.add('flex');lucide.createIcons();
-                }else{errEl.textContent='Error al enviar. Intenta de nuevo.';errEl.classList.remove('hidden')}
-            })
-            .catch(error=>{console.error('Error:',error);errEl.textContent='Error de conexión. Verifica tu internet.';errEl.classList.remove('hidden')})
-            .finally(()=>{submitBtn.disabled=false;submitBtn.classList.remove('opacity-70','cursor-not-allowed');submitBtnText.textContent='Confirmar Pedido'});
-        });
-    });
+    async function submitOrder(){
+        const errEl=document.getElementById('checkoutError');
+        const nombre=document.getElementById('custName').value.trim();
+        const telefono=document.getElementById('custPhone').value.trim();
+        const email=document.getElementById('custEmail').value.trim();
+        const direccion=document.getElementById('custAddress').value.trim();
+        const paymentRadio=document.querySelector('input[name="pago_seleccion"]:checked');
+
+        if(!nombre||!telefono||!direccion){errEl.textContent='Completa los campos obligatorios.';errEl.classList.remove('hidden');return}
+        if(!paymentRadio){errEl.textContent='Selecciona un método de pago.';errEl.classList.remove('hidden');return}
+        errEl.classList.add('hidden');
+
+        const submitBtn=document.getElementById('submitBtn');
+        const submitBtnText=document.getElementById('submitBtnText');
+        submitBtn.disabled=true;submitBtnText.textContent='Guardando...';
+
+        const pedidoId='PED-'+Date.now();
+        const tP=cart.reduce((s,c)=>{const p=products.find(x=>x.id===c.id);return s+(p.price*c.qty)},0);
+
+        try {
+            // 1. Insertar pedido
+            const {data:pedidoData, error:pedidoError} = await db.from('pedidos').insert({
+                pedido_id: pedidoId,
+                nombre,
+                telefono,
+                email: email||null,
+                direccion,
+                metodo_pago: paymentRadio.value,
+                total: tP,
+                estado: 'pendiente'
+            }).select();
+
+            if(pedidoError) throw pedidoError;
+
+            // 2. Insertar items
+            const items = cart.map(c=>{
+                const p=products.find(x=>x.id===c.id);
+                return {
+                    pedido_id: pedidoId,
+                    producto: p.name,
+                    categoria: p.category,
+                    cantidad: c.qty,
+                    precio: p.price,
+                    subtotal: p.price * c.qty
+                };
+            });
+            const {error:itemsError} = await db.from('pedido_items').insert(items);
+            if(itemsError) throw itemsError;
+
+            // 3. También enviar a Formspree como respaldo de email
+            const formData = new FormData();
+            formData.append('_subject', `🛒 Nuevo Pedido ${pedidoId} — Ramazzini`);
+            formData.append('pedido_id', pedidoId);
+            formData.append('nombre', nombre);
+            formData.append('telefono', telefono);
+            formData.append('email', email);
+            formData.append('direccion', direccion);
+            formData.append('metodo_pago', paymentRadio.value);
+            formData.append('total', 'Q'+tP.toFixed(2));
+            formData.append('productos', cart.map(c=>{const p=products.find(x=>x.id===c.id);return`• ${p.name} x${c.qty} = Q${(p.price*c.qty).toFixed(2)}`}).join('\n'));
+            fetch('https://formspree.io/f/xjglqkdw',{method:'POST',body:formData,headers:{'Accept':'application/json'}}).catch(()=>{});
+
+            closeCheckoutModal();
+            cart=[];updateCartUI();renderProducts(currentFilter);
+            const s=document.getElementById('successModal');s.classList.remove('hidden');s.classList.add('flex');lucide.createIcons();
+
+        } catch(err) {
+            console.error('Error Supabase:', err);
+            errEl.textContent='Error al guardar el pedido. Intenta de nuevo.';
+            errEl.classList.remove('hidden');
+        } finally {
+            submitBtn.disabled=false;submitBtnText.textContent='Confirmar Pedido';
+        }
+    }
+
     function closeSuccessModal(){document.getElementById('successModal').classList.add('hidden');document.getElementById('successModal').classList.remove('flex')}
 
-    // ===== CHATBOT CON MENÚS EXPANDIDOS =====
+    // ===== PANEL ADMIN =====
+    let adminTabActive = 'orders';
+    let allOrders = [];
+    let allItems = [];
+
+    function toggleAdmin(){
+        const m=document.getElementById('adminModal');
+        m.classList.remove('hidden');m.classList.add('flex');
+        lucide.createIcons();
+        loadAdminData();
+    }
+    function closeAdmin(){
+        const m=document.getElementById('adminModal');
+        m.classList.add('hidden');m.classList.remove('flex');
+    }
+
+    async function loadAdminData(){
+        document.getElementById('adminContent').innerHTML=`<div class="flex items-center justify-center h-40"><div class="text-center"><div class="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mx-auto mb-3"></div><p class="text-brand-400 text-sm">Conectando con Supabase...</p></div></div>`;
+
+        try {
+            // Cargar pedidos
+            const {data:orders, error:e1} = await db.from('pedidos').select('*').order('fecha',{ascending:false});
+            if(e1) throw e1;
+            allOrders = orders || [];
+
+            // Cargar items
+            const {data:items, error:e2} = await db.from('pedido_items').select('*');
+            if(e2) throw e2;
+            allItems = items || [];
+
+            // Stats
+            const totalRev = allOrders.reduce((s,o)=>s+parseFloat(o.total||0),0);
+            const totalUnits = allItems.reduce((s,i)=>s+parseInt(i.cantidad||0),0);
+            const avgTicket = allOrders.length>0 ? totalRev/allOrders.length : 0;
+            document.getElementById('adminTotalOrders').textContent = allOrders.length;
+            document.getElementById('adminRevenue').textContent = 'Q'+totalRev.toFixed(0);
+            document.getElementById('adminUnits').textContent = totalUnits;
+            document.getElementById('adminAvg').textContent = 'Q'+avgTicket.toFixed(0);
+
+            renderAdminTab(adminTabActive);
+        } catch(err) {
+            document.getElementById('adminContent').innerHTML=`<div class="text-center py-12"><div class="text-red-400 text-4xl mb-3">⚠️</div><p class="text-red-600 font-semibold">Error al conectar con Supabase</p><p class="text-brand-400 text-sm mt-1">${err.message}</p><p class="text-brand-400 text-xs mt-3">Asegúrate de haber ejecutado el SQL en Supabase.</p></div>`;
+        }
+    }
+
+    function switchAdminTab(tab){
+        adminTabActive=tab;
+        document.querySelectorAll('.admin-tab').forEach((t,i)=>{
+            const tabs=['orders','products','sql'];
+            t.classList.remove('active','text-brand-500');
+            if(tabs[i]===tab){t.classList.add('active')}else{t.classList.add('text-brand-500')}
+        });
+        renderAdminTab(tab);
+    }
+
+    function renderAdminTab(tab){
+        const c=document.getElementById('adminContent');
+        if(tab==='orders') renderOrdersTab(c);
+        else if(tab==='products') renderProductsTab(c);
+        else renderSQLTab(c);
+    }
+
+    function renderOrdersTab(c){
+        if(allOrders.length===0){c.innerHTML='<p class="text-center text-brand-400 py-12">No hay pedidos aún. Los pedidos aparecerán aquí cuando los clientes compren.</p>';return}
+        c.innerHTML=`<div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead><tr class="text-left border-b border-brand-100">
+                <th class="pb-3 text-xs uppercase text-brand-400 font-semibold pr-4">Pedido</th>
+                <th class="pb-3 text-xs uppercase text-brand-400 font-semibold pr-4">Cliente</th>
+                <th class="pb-3 text-xs uppercase text-brand-400 font-semibold pr-4">Teléfono</th>
+                <th class="pb-3 text-xs uppercase text-brand-400 font-semibold pr-4">Pago</th>
+                <th class="pb-3 text-xs uppercase text-brand-400 font-semibold pr-4">Total</th>
+                <th class="pb-3 text-xs uppercase text-brand-400 font-semibold pr-4">Estado</th>
+                <th class="pb-3 text-xs uppercase text-brand-400 font-semibold">Fecha</th>
+            </tr></thead>
+            <tbody>${allOrders.map(o=>`<tr class="border-b border-brand-50 hover:bg-surface-50">
+                <td class="py-3 pr-4 font-mono text-xs text-brand-500">${o.pedido_id}</td>
+                <td class="py-3 pr-4 font-medium">${o.nombre||'—'}</td>
+                <td class="py-3 pr-4 text-brand-600">${o.telefono||'—'}</td>
+                <td class="py-3 pr-4">${o.metodo_pago||'—'}</td>
+                <td class="py-3 pr-4 font-bold text-brand-900">Q${parseFloat(o.total||0).toFixed(2)}</td>
+                <td class="py-3 pr-4"><span class="px-2 py-1 rounded-full text-xs font-medium ${o.estado==='completado'?'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700'}">${o.estado||'pendiente'}</span></td>
+                <td class="py-3 text-xs text-brand-400">${o.fecha?new Date(o.fecha).toLocaleString('es-GT'):'—'}</td>
+            </tr>`).join('')}</tbody>
+        </table></div>`;
+    }
+
+    function renderProductsTab(c){
+        const productMap={};
+        allItems.forEach(i=>{
+            if(!productMap[i.producto])productMap[i.producto]={producto:i.producto,categoria:i.categoria,cantidad:0,subtotal:0};
+            productMap[i.producto].cantidad+=parseInt(i.cantidad||0);
+            productMap[i.producto].subtotal+=parseFloat(i.subtotal||0);
+        });
+        const sorted=Object.values(productMap).sort((a,b)=>b.cantidad-a.cantidad);
+        if(sorted.length===0){c.innerHTML='<p class="text-center text-brand-400 py-12">No hay items vendidos aún.</p>';return}
+        const maxQ=sorted[0].cantidad;
+        const catColors={ram:'bg-blue-100 text-blue-700',disco:'bg-green-100 text-green-700',fuente:'bg-yellow-100 text-yellow-700',ventilador:'bg-purple-100 text-purple-700',cable:'bg-teal-100 text-teal-700',tarjeta:'bg-pink-100 text-pink-700'};
+        c.innerHTML=`<table class="w-full text-sm">
+            <thead><tr class="text-left border-b border-brand-100">
+                <th class="pb-3 text-xs uppercase text-brand-400 font-semibold">#</th>
+                <th class="pb-3 text-xs uppercase text-brand-400 font-semibold">Producto</th>
+                <th class="pb-3 text-xs uppercase text-brand-400 font-semibold">Categoría</th>
+                <th class="pb-3 text-xs uppercase text-brand-400 font-semibold">Unidades</th>
+                <th class="pb-3 text-xs uppercase text-brand-400 font-semibold">Ingresos</th>
+                <th class="pb-3 text-xs uppercase text-brand-400 font-semibold w-40">Popularidad</th>
+            </tr></thead>
+            <tbody>${sorted.map((p,i)=>`<tr class="border-b border-brand-50 hover:bg-surface-50">
+                <td class="py-3 text-brand-300 text-xs w-8">${i+1}</td>
+                <td class="py-3 font-medium text-brand-900 max-w-[200px] truncate">${p.producto}</td>
+                <td class="py-3"><span class="px-2 py-1 rounded-full text-xs font-medium ${catColors[p.categoria]||'bg-gray-100 text-gray-600'}">${p.categoria||'—'}</span></td>
+                <td class="py-3 font-bold">${p.cantidad}</td>
+                <td class="py-3 font-bold text-brand-700">Q${p.subtotal.toFixed(2)}</td>
+                <td class="py-3"><div class="bg-brand-100 rounded-full h-2"><div class="bg-brand-600 h-2 rounded-full" style="width:${Math.round((p.cantidad/maxQ)*100)}%"></div></div></td>
+            </tr>`).join('')}</tbody>
+        </table>`;
+    }
+
+    function renderSQLTab(c){
+        c.innerHTML=`<div>
+            <p class="text-sm text-brand-500 mb-3">Ejecuta consultas SQL directamente sobre tu base de datos de Ramazzini:</p>
+            <div class="flex gap-2 flex-wrap mb-3">
+                ${[
+                    ["Top productos","SELECT producto, SUM(cantidad) as unidades, SUM(subtotal) as ingresos FROM pedido_items GROUP BY producto ORDER BY unidades DESC LIMIT 10"],
+                    ["Ventas por categoría","SELECT categoria, SUM(cantidad) as unidades, SUM(subtotal) as ingresos FROM pedido_items GROUP BY categoria ORDER BY ingresos DESC"],
+                    ["Pedidos pendientes","SELECT pedido_id, nombre, telefono, total FROM pedidos WHERE estado = 'pendiente' ORDER BY fecha DESC"],
+                    ["Ingresos del mes","SELECT DATE(fecha) as dia, COUNT(*) as pedidos, SUM(total) as ingresos FROM pedidos WHERE fecha >= date_trunc('month', now()) GROUP BY dia ORDER BY dia"]
+                ].map(([label,q])=>`<button onclick="setQuery(${JSON.stringify(q)})" class="text-xs bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 px-3 py-1.5 rounded-full transition-all">${label}</button>`).join('')}
+            </div>
+            <textarea id="sqlInput" rows="3" class="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 resize-none mb-3" placeholder="SELECT * FROM pedidos ORDER BY fecha DESC LIMIT 10"></textarea>
+            <button onclick="runSQL()" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-6 py-2.5 rounded-full mb-4 transition-all">▶ Ejecutar</button>
+            <div id="sqlResult"></div>
+        </div>`;
+    }
+
+    function setQuery(q){
+        const el=document.getElementById('sqlInput');
+        if(el) el.value=q;
+    }
+
+    async function runSQL(){
+        const q=document.getElementById('sqlInput').value.trim();
+        if(!q)return;
+        const res=document.getElementById('sqlResult');
+        res.innerHTML='<p class="text-brand-400 text-sm animate-pulse">Ejecutando...</p>';
+        try {
+            const {data,error}=await db.rpc('run_query',{query_text:q}).catch(()=>({data:null,error:{message:'La función run_query no existe. Usa el SQL Editor de Supabase para consultas avanzadas.'}}));
+            if(error) throw error;
+            if(!data||data.length===0){res.innerHTML='<p class="text-brand-400 text-sm">Sin resultados.</p>';return}
+            const cols=Object.keys(data[0]);
+            res.innerHTML=`<div class="overflow-x-auto"><table class="w-full text-xs border border-brand-100 rounded-xl overflow-hidden">
+                <thead class="bg-brand-50"><tr>${cols.map(c=>`<th class="px-3 py-2 text-left text-brand-600 font-semibold">${c}</th>`).join('')}</tr></thead>
+                <tbody>${data.map(row=>`<tr class="border-t border-brand-50 hover:bg-surface-50">${cols.map(c=>`<td class="px-3 py-2">${row[c]??'—'}</td>`).join('')}</tr>`).join('')}
+                </tbody></table></div>`;
+        } catch(err){
+            res.innerHTML=`<div class="bg-brand-50 border border-brand-200 rounded-xl p-4"><p class="text-sm text-brand-700 font-medium mb-1">Nota:</p><p class="text-sm text-brand-600">${err.message}</p><p class="text-xs text-brand-400 mt-2">Para SQL avanzado, usa el <strong>SQL Editor</strong> en tu dashboard de Supabase.</p></div>`;
+        }
+    }
+
+    async function exportCSV(){
+        const {data:orders}=await db.from('pedidos').select('*').order('fecha',{ascending:false});
+        const {data:items}=await db.from('pedido_items').select('*');
+        if(!orders||orders.length===0){alert('No hay datos para exportar.');return}
+        const rows=[['Pedido ID','Fecha','Cliente','Teléfono','Email','Dirección','Pago','Estado','Producto','Categoría','Cantidad','Precio','Subtotal','Total Pedido']];
+        orders.forEach(o=>{
+            const oi=(items||[]).filter(i=>i.pedido_id===o.pedido_id);
+            if(oi.length===0){rows.push([o.pedido_id,o.fecha,o.nombre,o.telefono,o.email,o.direccion,o.metodo_pago,o.estado,'','','','','',o.total]);}
+            else oi.forEach(i=>rows.push([o.pedido_id,o.fecha,o.nombre,o.telefono,o.email,o.direccion,o.metodo_pago,o.estado,i.producto,i.categoria,i.cantidad,i.precio,i.subtotal,o.total]));
+        });
+        const csv=rows.map(r=>r.map(c=>`"${String(c??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+        const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+        a.download='ramazzini_ventas_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+    }
+
+    // ===== CHATBOT =====
     const menus={
-        main:{
-            msg:'¡Bienvenido a Ramazzini! 👋\n\nSelecciona una opción:',
-            options:[
-                {id:'servicios',label:'🔧 Servicios'},
-                {id:'tienda_info',label:'🛒 Tienda'},
-                {id:'precios',label:'💰 Precios'},
-                {id:'problema',label:'⚠️ Tengo un problema'}
-            ]
-        },
-        servicios:{
-            msg:'🔧 Servicios:',
-            options:[
-                {id:'srv_hardware',label:'🔩 Reparación Hardware'},
-                {id:'srv_virus',label:'🛡️ Eliminación Virus'},
-                {id:'srv_mantenimiento',label:'⚙️ Mantenimiento'},
-                {id:'main',label:'⬅️ Volver'}
-            ]
-        },
+        main:{msg:'¡Bienvenido a Ramazzini! 👋\n\nSelecciona una opción:',options:[{id:'servicios',label:'🔧 Servicios'},{id:'tienda_info',label:'🛒 Tienda'},{id:'precios',label:'💰 Precios'},{id:'problema',label:'⚠️ Tengo un problema'}]},
+        servicios:{msg:'🔧 Servicios:',options:[{id:'srv_hardware',label:'🔩 Reparación Hardware'},{id:'srv_virus',label:'🛡️ Eliminación Virus'},{id:'srv_mantenimiento',label:'⚙️ Mantenimiento'},{id:'main',label:'⬅️ Volver'}]},
         srv_hardware:{msg:'🔩 Reparación Hardware\n• Pantallas • Teclados • Baterías\n• Discos • RAM • Placas\n⏱ 1-3 días | 💰 Desde Q350',options:[{id:'agendar_wa',label:'📱 Agendar'},{id:'servicios',label:'⬅️ Volver'}]},
         srv_virus:{msg:'🛡️ Eliminación Virus\n• Malware y ransomware\n• Instalación antivirus\n⏱ 2-4 horas | 💰 Q150',options:[{id:'agendar_wa',label:'📱 Agendar'},{id:'servicios',label:'⬅️ Volver'}]},
         srv_mantenimiento:{msg:'⚙️ Mantenimiento\n• Limpieza interna\n• Pasta térmica • Optimización\n⏱ 2-3 horas | 💰 Q150',options:[{id:'agendar_wa',label:'📱 Agendar'},{id:'servicios',label:'⬅️ Volver'}]},
-
-        tienda_info:{
-            msg:'🛒 ¿Qué categoría buscas?',
-            options:[
-                {id:'tienda_ram',label:'📦 Memoria RAM'},
-                {id:'tienda_discos',label:'💾 Discos'},
-                {id:'tienda_fuentes',label:'⚡ Fuentes de Poder'},
-                {id:'tienda_ventiladores',label:'🌀 Ventilación'},
-                {id:'tienda_cables',label:'🔌 Cables'},
-                {id:'tienda_tarjetas',label:'🖥️ Tarjetas'},
-                {id:'tienda_ir',label:'🛍️ Ir a la tienda'},
-                {id:'main',label:'⬅️ Volver'}
-            ]
-        },
-
-        tienda_ram:{
-            msg:'📦 Memoria RAM disponible:\n\n• DDR4 4GB 2400MHz — Q145\n• DDR4 8GB 2666MHz — Q275 ⭐\n• DDR4 16GB 3200MHz — Q475\n• DDR5 16GB 5600MHz — Q675 🔥\n• DDR5 32GB 4800MHz — Q875 🆕',
-            options:[
-                {id:'tienda_ir',label:'🛍️ Ver tienda'},
-                {id:'tienda_info',label:'⬅️ Volver'}
-            ]
-        },
-
-        tienda_discos:{
-            msg:'💾 Discos disponibles:\n\n• SSD SATA 240GB — Q175\n• SSD SATA 480GB — Q295\n• NVMe M.2 512GB — Q425\n• NVMe M.2 1TB — Q595 🔥\n• HDD WD Blue 1TB — Q225\n• HDD Seagate 2TB — Q395',
-            options:[
-                {id:'tienda_ir',label:'🛍️ Ver tienda'},
-                {id:'tienda_info',label:'⬅️ Volver'}
-            ]
-        },
-
-        tienda_fuentes:{
-            msg:'⚡ Fuentes de Poder:\n\n• 500W 80+ White — Q395\n• 600W 80+ — Q525\n• 800W Modular — Q795 ⭐\n• 1000W 80+ Gold — Q1,195 🏆',
-            options:[
-                {id:'tienda_ir',label:'🛍️ Ver tienda'},
-                {id:'tienda_info',label:'⬅️ Volver'}
-            ]
-        },
-
-        tienda_ventiladores:{
-            msg:'🌀 Ventilación:\n\n• Cooler 92mm — Q115\n• Cooler 120mm — Q155\n• Kit RGB 3x120mm — Q345 ⭐\n• AIO Líquido 240mm — Q695 🆕',
-            options:[
-                {id:'tienda_ir',label:'🛍️ Ver tienda'},
-                {id:'tienda_info',label:'⬅️ Volver'}
-            ]
-        },
-
-        tienda_cables:{
-            msg:'🔌 Cables disponibles:\n\n• Cable Poder AC 1.5m — Q45\n• SATA III Pack x3 — Q55 🔥\n• VGA HD15 1.8m — Q55\n• USB-C a USB-C — Q65\n• HDMI 2.1 2m — Q75\n• DisplayPort 1.4 — Q95',
-            options:[
-                {id:'tienda_ir',label:'🛍️ Ver tienda'},
-                {id:'tienda_info',label:'⬅️ Volver'}
-            ]
-        },
-
-        tienda_tarjetas:{
-            msg:'🖥️ Tarjetas disponibles:\n\n• Red Ethernet Gigabit — Q125\n• Red WiFi 6 PCIe — Q235 🆕\n• Sonido 7.1 PCIe — Q275\n• Video GTX 1650 4GB — Q1,495\n• Video RX 6600 8GB — Q2,195 🔥',
-            options:[
-                {id:'tienda_ir',label:'🛍️ Ver tienda'},
-                {id:'tienda_info',label:'⬅️ Volver'}
-            ]
-        },
-
+        tienda_info:{msg:'🛒 ¿Qué categoría buscas?',options:[{id:'tienda_ram',label:'📦 Memoria RAM'},{id:'tienda_discos',label:'💾 Discos'},{id:'tienda_fuentes',label:'⚡ Fuentes de Poder'},{id:'tienda_ventiladores',label:'🌀 Ventilación'},{id:'tienda_cables',label:'🔌 Cables'},{id:'tienda_tarjetas',label:'🖥️ Tarjetas'},{id:'tienda_ir',label:'🛍️ Ir a la tienda'},{id:'main',label:'⬅️ Volver'}]},
+        tienda_ram:{msg:'📦 Memoria RAM disponible:\n\n• DDR4 4GB 2400MHz — Q145\n• DDR4 8GB 2666MHz — Q275 ⭐\n• DDR4 16GB 3200MHz — Q475\n• DDR5 16GB 5600MHz — Q675 🔥\n• DDR5 32GB 4800MHz — Q875 🆕',options:[{id:'tienda_ir',label:'🛍️ Ver tienda'},{id:'tienda_info',label:'⬅️ Volver'}]},
+        tienda_discos:{msg:'💾 Discos disponibles:\n\n• SSD SATA 240GB — Q175\n• SSD SATA 480GB — Q295\n• NVMe M.2 512GB — Q425\n• NVMe M.2 1TB — Q595 🔥\n• HDD WD Blue 1TB — Q225\n• HDD Seagate 2TB — Q395',options:[{id:'tienda_ir',label:'🛍️ Ver tienda'},{id:'tienda_info',label:'⬅️ Volver'}]},
+        tienda_fuentes:{msg:'⚡ Fuentes de Poder:\n\n• 500W 80+ White — Q395\n• 600W 80+ — Q525\n• 800W Modular — Q795 ⭐\n• 1000W 80+ Gold — Q1,195 🏆',options:[{id:'tienda_ir',label:'🛍️ Ver tienda'},{id:'tienda_info',label:'⬅️ Volver'}]},
+        tienda_ventiladores:{msg:'🌀 Ventilación:\n\n• Cooler 92mm — Q115\n• Cooler 120mm — Q155\n• Kit RGB 3x120mm — Q345 ⭐\n• AIO Líquido 240mm — Q695 🆕',options:[{id:'tienda_ir',label:'🛍️ Ver tienda'},{id:'tienda_info',label:'⬅️ Volver'}]},
+        tienda_cables:{msg:'🔌 Cables disponibles:\n\n• Cable Poder AC 1.5m — Q45\n• SATA III Pack x3 — Q55 🔥\n• VGA HD15 1.8m — Q55\n• USB-C a USB-C — Q65\n• HDMI 2.1 2m — Q75\n• DisplayPort 1.4 — Q95',options:[{id:'tienda_ir',label:'🛍️ Ver tienda'},{id:'tienda_info',label:'⬅️ Volver'}]},
+        tienda_tarjetas:{msg:'🖥️ Tarjetas disponibles:\n\n• Red Ethernet Gigabit — Q125\n• Red WiFi 6 PCIe — Q235 🆕\n• Sonido 7.1 PCIe — Q275\n• Video GTX 1650 4GB — Q1,495\n• Video RX 6600 8GB — Q2,195 🔥',options:[{id:'tienda_ir',label:'🛍️ Ver tienda'},{id:'tienda_info',label:'⬅️ Volver'}]},
         tienda_ir:{msg:'🛍️ Ve a la tienda para agregar al carrito.',options:[{id:'goto_tienda',label:'🛍️ Ir ahora'},{id:'main',label:'⬅️ Volver'}]},
         precios:{msg:'💰 Precios:\n🔹 Básico — Q150\n🔹 Completo — Q350\n🔹 Empresarial — Q800/mes\n✅ Diagnóstico GRATIS',options:[{id:'agendar_wa',label:'📱 Solicitar'},{id:'main',label:'⬅️ Volver'}]},
         problema:{msg:'⚠️ ¿Cuál es el problema?',options:[{id:'prob_lento',label:'🐢 PC lenta'},{id:'prob_virus',label:'🦠 Virus'},{id:'prob_no',label:'🔌 No enciende'},{id:'prob_bsod',label:'💀 Pantalla azul'},{id:'main',label:'⬅️ Volver'}]},
