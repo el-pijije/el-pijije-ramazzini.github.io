@@ -55,6 +55,9 @@
         .admin-tab{transition:all .2s}
         .admin-tab.active{border-bottom:2px solid #2B7DE9;color:#0F3D7A;font-weight:600}
         .stat-card{background:linear-gradient(135deg,#EBF5FF,#F8FBFF);border:1px solid #ADD6FF;border-radius:16px;padding:20px}
+        /* Login shake */
+        @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+        .shake{animation:shake .4s ease}
     </style>
 </head>
 <body class="bg-white text-brand-900">
@@ -280,6 +283,27 @@
         </div>
     </div>
 
+    <!-- ===== LOGIN ADMIN MODAL ===== -->
+    <div id="loginAdminModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 animate-slide-up text-center">
+            <div class="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="lock" class="w-8 h-8 text-brand-600"></i>
+            </div>
+            <h3 class="text-xl font-bold text-brand-900 mb-1">Acceso Restringido</h3>
+            <p class="text-brand-500 text-sm mb-6">Ingresa tus credenciales de administrador</p>
+            
+            <div class="space-y-4">
+                <input type="text" id="adminUser" placeholder="Usuario" class="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <input type="password" id="adminPass" placeholder="Contraseña" class="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" onkeydown="if(event.key==='Enter')checkAdminLogin()">
+                <button onclick="checkAdminLogin()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition-all">
+                    Entrar al Panel
+                </button>
+                <button onclick="closeAdminLogin()" class="text-brand-400 text-xs hover:text-brand-600 underline">Cancelar</button>
+            </div>
+            <div id="loginError" class="hidden mt-4 text-red-500 text-xs font-bold">Credenciales incorrectas</div>
+        </div>
+    </div>
+
     <!-- ===== PANEL ADMIN ===== -->
     <div id="adminModal" class="fixed inset-0 z-[80] hidden items-center justify-center bg-black/60 p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full mx-auto my-6 overflow-hidden animate-slide-up">
@@ -428,7 +452,7 @@
     function updateCartUI(){
         const badge=document.getElementById('cartBadge'),count=document.getElementById('cartCount'),pCount=document.getElementById('cartPanelCount'),items=document.getElementById('cartItems'),footer=document.getElementById('cartFooter'),total=document.getElementById('cartTotal');
         const tI=cart.reduce((s,c)=>s+c.qty,0),tP=cart.reduce((s,c)=>{const p=products.find(x=>x.id===c.id);return s+(p.price*c.qty)},0);
-        if(tI>0){badge.classList.remove('hidden')}else{badge.classList.add('hidden')}
+        if(tI>0){badge.classList.remove('hidden');badge.classList.add('flex')}else{badge.classList.add('hidden');badge.classList.remove('flex')}
         count.textContent=tI;pCount.textContent=tI;total.textContent=`Q${tP.toFixed(2)}`;
         if(cart.length===0){items.innerHTML='<div class="text-center py-10"><p class="text-brand-400 text-sm">Tu carrito está vacío</p></div>';footer.classList.add('hidden')}
         else{items.innerHTML=cart.map(c=>{const p=products.find(x=>x.id===c.id);return`<div class="flex items-center gap-3 bg-surface-50 rounded-xl p-3"><img src="${getProductImage(p)}" alt="${p.name}" class="w-14 h-14 rounded-lg object-contain shrink-0 bg-white p-1"><div class="flex-1 min-w-0"><p class="text-sm font-semibold text-brand-900 truncate">${p.name}</p><p class="text-sm font-bold text-brand-600">Q${(p.price*c.qty).toFixed(2)}</p></div><div class="flex items-center gap-1 shrink-0"><button onclick="changeQty(${p.id},-1)" class="w-7 h-7 rounded-full bg-brand-100 hover:bg-brand-200 flex items-center justify-center text-brand-700 font-bold text-sm">-</button><span class="w-7 text-center text-sm font-bold">${c.qty}</span><button onclick="changeQty(${p.id},1)" class="w-7 h-7 rounded-full bg-brand-100 hover:bg-brand-200 flex items-center justify-center text-brand-700 font-bold text-sm">+</button></div><button onclick="removeFromCart(${p.id})" class="text-red-400 hover:text-red-600 shrink-0 text-lg leading-none">&times;</button></div>`}).join('');footer.classList.remove('hidden')}
@@ -527,17 +551,59 @@
 
     function closeSuccessModal(){document.getElementById('successModal').classList.add('hidden');document.getElementById('successModal').classList.remove('flex')}
 
+    // ===== LOGIN ADMIN =====
+    // Función que se activa al hacer clic en el botón "Admin" del Navbar
+    function toggleAdmin() {
+        // En lugar de abrir el admin directo, abrimos el login
+        const loginModal = document.getElementById('loginAdminModal');
+        loginModal.classList.remove('hidden');
+        loginModal.classList.add('flex');
+        lucide.createIcons();
+    }
+
+    // Función para cerrar el modal de login si se cancela
+    function closeAdminLogin() {
+        document.getElementById('loginAdminModal').classList.add('hidden');
+        document.getElementById('loginAdminModal').classList.remove('flex');
+        document.getElementById('loginError').classList.add('hidden');
+        // Limpiar campos
+        document.getElementById('adminUser').value = '';
+        document.getElementById('adminPass').value = '';
+    }
+
+    // Función que valida las credenciales
+    function checkAdminLogin() {
+        const user = document.getElementById('adminUser').value;
+        const pass = document.getElementById('adminPass').value;
+        const errorMsg = document.getElementById('loginError');
+        const loginBox = document.querySelector('#loginAdminModal > div');
+
+        // Credenciales: Ramazzini / chuy502
+        if (user === 'Ramazzini' && pass === 'chuy502') {
+            // 1. Cerrar login
+            closeAdminLogin();
+            // 2. Abrir el Panel de Admin real (modal ID: adminModal)
+            const adminModal = document.getElementById('adminModal');
+            adminModal.classList.remove('hidden');
+            adminModal.classList.add('flex');
+            lucide.createIcons();
+            // 3. Cargar los datos de Supabase
+            loadAdminData();
+        } else {
+            // Mostrar error con animación de shake
+            errorMsg.classList.remove('hidden');
+            document.getElementById('adminPass').value = '';
+            // Animación de shake
+            loginBox.classList.add('shake');
+            setTimeout(() => loginBox.classList.remove('shake'), 400);
+        }
+    }
+
     // ===== PANEL ADMIN =====
     let adminTabActive = 'orders';
     let allOrders = [];
     let allItems = [];
 
-    function toggleAdmin(){
-        const m=document.getElementById('adminModal');
-        m.classList.remove('hidden');m.classList.add('flex');
-        lucide.createIcons();
-        loadAdminData();
-    }
     function closeAdmin(){
         const m=document.getElementById('adminModal');
         m.classList.add('hidden');m.classList.remove('flex');
@@ -727,7 +793,7 @@
     function addBot(t){const c=document.getElementById('chatMessages');const d=document.createElement('div');d.className='flex justify-start animate-slide-up';let f=t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');d.innerHTML=`<div class="flex gap-2 max-w-[90%]"><img src="${L}" class="w-7 h-7 rounded-full bg-brand-100 shrink-0 mt-1 object-contain p-0.5"><div class="chat-bubble-bot px-4 py-3"><p class="text-sm leading-relaxed">${f}</p></div></div>`;c.appendChild(d);c.scrollTop=c.scrollHeight}
     function addUser(t){const c=document.getElementById('chatMessages');const d=document.createElement('div');d.className='flex justify-end animate-slide-up';d.innerHTML=`<div class="chat-bubble-user px-4 py-3 max-w-[80%]"><p class="text-sm leading-relaxed">${t}</p></div>`;c.appendChild(d);c.scrollTop=c.scrollHeight}
     function renderMenu(id){const m=menus[id];if(!m)return;addBot(m.msg);const c=document.getElementById('menuButtons');c.innerHTML='';const g=document.createElement('div');g.className='grid grid-cols-2 gap-2';m.options.forEach(o=>{const b=document.createElement('button');b.className='menu-btn text-left text-xs font-medium px-3 py-2.5 rounded-xl bg-brand-50 text-brand-800 hover:bg-brand-100 border border-brand-100 transition-all truncate';b.textContent=o.label;b.onclick=()=>handleMenu(o.id,o.label);g.appendChild(b)});c.appendChild(g)}
-    function handleMenu(id,label){addUser(label);if(id==='open_whatsapp'){window.open('https://wa.me/50258415734','_blank');return}if(id==='goto_tienda'){toggleChat();setTimeout(()=>{document.getElementById('tienda').scrollIntoView({behavior:'smooth'})},400);return}const m=menus[id];if(m)setTimeout(()=>renderMenu(id),300)}
+    function handleMenu(id,label){addUser(label);if(id==='open_whatsapp'||id==='agendar_wa'){window.open('https://wa.me/50258415734','_blank');return}if(id==='goto_tienda'){toggleChat();setTimeout(()=>{document.getElementById('tienda').scrollIntoView({behavior:'smooth'})},400);return}const m=menus[id];if(m)setTimeout(()=>renderMenu(id),300)}
 
     let chatOpen=false;
     function toggleChat(){chatOpen=!chatOpen;const w=document.getElementById('chatWindow'),o=document.getElementById('chatIconOpen'),c=document.getElementById('chatIconClose'),n=document.getElementById('chatNotification');if(chatOpen){w.classList.remove('hidden-chat');w.classList.add('visible-chat');o.classList.add('hidden');c.classList.remove('hidden');n.classList.add('hidden')}else{w.classList.add('hidden-chat');w.classList.remove('visible-chat');o.classList.remove('hidden');c.classList.add('hidden')}lucide.createIcons()}
