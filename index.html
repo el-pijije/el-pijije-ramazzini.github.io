@@ -1,541 +1,546 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Proyecto: 5 Semáforos con Arduino Mega</title>
-  <meta name="description" content="Guía completa para montar 5 semáforos con Arduino Mega, LEDs, resistencias, jumpers y breadboard. Incluye mapeo de pines, pasos y código.">
-  <style>
-    :root{
-      --bg: #0f1115;
-      --panel: #171923;
-      --ink: #e8e8f1;
-      --muted:#a8b0c2;
-      --brand:#5ee3a1;
-      --accent:#7aa9ff;
-      --danger:#ff6666;
-      --warn:#ffd166;
-      --ok:#3de37a;
-      --card:#1d2130;
-      --border:#2a3042;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius: 14px;
-    }
-    @media (prefers-color-scheme: light){
-      :root{
-        --bg:#f6f8ff;
-        --panel:#ffffff;
-        --ink:#1f2430;
-        --muted:#4f5a6d;
-        --card:#ffffff;
-        --border:#e6e9f2;
-        --shadow: 0 10px 24px rgba(31,36,48,.08);
-      }
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial}
-    a{color:var(--accent);text-decoration:none}
-    a:hover{text-decoration:underline}
-    .wrap{max-width:1100px;margin:auto;padding:24px}
-    header{
-      background: radial-gradient(1200px 500px at 20% -10%, rgba(122,169,255,.18), transparent 60%),
-                  radial-gradient(1000px 500px at 90% 0%, rgba(94,227,161,.16), transparent 60%),
-                  var(--panel);
-      border-bottom: 1px solid var(--border);
-    }
-    .hero{display:grid;gap:20px;grid-template-columns:1.2fr .8fr;align-items:center;padding:36px 0}
-    .hero h1{font-size:clamp(24px,4vw,44px);margin:0 0 8px}
-    .hero p{color:var(--muted);margin:0}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
-    .controls{padding:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:flex-start}
-    .controls label{font-weight:600}
-    .btn{appearance:none;border:1px solid var(--border);background:var(--panel);color:var(--ink);padding:10px 14px;border-radius:10px;cursor:pointer}
-    .btn:hover{border-color:var(--accent)}
-    .grid{display:grid;gap:16px}
-    .two{grid-template-columns:1fr 1fr}
-    .three{grid-template-columns:repeat(3,1fr)}
-    @media(max-width:900px){.hero{grid-template-columns:1fr}.two,.three{grid-template-columns:1fr}}
-    section{margin:28px 0}
-    h2{margin:0 0 8px;font-size:clamp(20px,2.6vw,28px)}
-    .muted{color:var(--muted)}
-    .list{padding:16px}
-    .list li{margin:6px 0}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
-    th{background:rgba(122,169,255,.08)}
-    code,pre{background:#0c0f16;color:#d7e1ff;border:1px solid var(--border);border-radius:10px}
-    pre{padding:16px;overflow:auto}
-    code{padding:.15em .35em;border-radius:6px}
-    /* Semáforos (simulación visual) */
-    .yard{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;padding:16px}
-    .pole{display:flex;flex-direction:column;align-items:center;padding:16px}
-    .traffic{
-      width:70px;background:#0a0d13;border:1px solid #2b3144;border-radius:14px;padding:10px 10px 16px;display:grid;gap:10px;justify-items:center;
-      box-shadow: inset 0 0 20px rgba(0,0,0,.45);
-    }
-    .lamp{width:36px;height:36px;border-radius:50%;filter: drop-shadow(0 2px 4px rgba(0,0,0,.45));opacity:.2;transition:opacity .2s, box-shadow .2s}
-    .lamp.red{background:#ff4b4b}
-    .lamp.yellow{background:#ffdb6e}
-    .lamp.green{background:#36e36c}
-    .lamp.on{opacity:1; box-shadow:0 0 16px currentColor, 0 0 30px currentColor inset}
-    .label{margin-top:8px;font-weight:700;color:var(--muted)}
-    .foot{width:10px;height:110px;background:linear-gradient(#23283a,#1b1f2f);margin-top:8px;border-radius:4px}
-    .note{padding:12px;border-left:4px solid var(--brand);background:linear-gradient(180deg, rgba(94,227,161,.08), transparent)}
-    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ramazzini - Soporte Técnico y Repuestos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config={theme:{extend:{colors:{brand:{50:'#EBF5FF',100:'#D6EBFF',200:'#ADD6FF',300:'#85C2FF',400:'#5CADFF',500:'#3399FF',600:'#2B7DE9',700:'#1A5BB5',800:'#0F3D7A',900:'#0A264F'},surface:{50:'#F8FBFF',100:'#F0F6FF',200:'#E8F0FA'},accent:{500:'#00C853',600:'#00A844'}},fontFamily:{sans:['Inter','sans-serif']}}}}
+    </script>
+    <style>
+        *{font-family:'Inter',sans-serif}
+        .chat-bubble-bot{background:linear-gradient(135deg,#2B7DE9,#3399FF);color:#fff;border-radius:18px 18px 18px 4px}
+        .chat-bubble-user{background:#F0F6FF;color:#0A264F;border-radius:18px 18px 4px 18px}
+        @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+        .animate-slide-up{animation:slideUp .4s ease-out}
+        .animate-float{animation:float 3s ease-in-out infinite}
+        .chatbot-window{transition:all .35s cubic-bezier(.4,0,.2,1);transform-origin:bottom right}
+        .chatbot-window.hidden-chat{opacity:0;transform:scale(.8) translateY(20px);pointer-events:none}
+        .chatbot-window.visible-chat{opacity:1;transform:scale(1) translateY(0);pointer-events:all}
+        .hero-bg{background:linear-gradient(160deg,#0A264F 0%,#0F3D7A 40%,#1A5BB5 100%)}
+        .card-hover{transition:all .3s ease}
+        .card-hover:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(43,125,233,.15)}
+        .pulse-ring{animation:pulseRing 2s ease-out infinite}
+        @keyframes pulseRing{0%{transform:scale(1);opacity:1}100%{transform:scale(1.5);opacity:0}}
+        .cart-panel{transition:all .35s cubic-bezier(.4,0,.2,1);transform-origin:top right}
+        .cart-panel.hidden-cart{opacity:0;transform:scale(.95) translateY(-10px);pointer-events:none}
+        .cart-panel.visible-cart{opacity:1;transform:scale(1) translateY(0);pointer-events:all}
+        .product-card{transition:all .3s ease}
+        .product-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(43,125,233,.12)}
+        .badge-cart{animation:badgePop .3s cubic-bezier(.4,0,.2,1)}
+        @keyframes badgePop{0%{transform:scale(.5)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+        .added-flash{animation:flashGreen .6s ease}
+        @keyframes flashGreen{0%{background-color:transparent}30%{background-color:#d1fae5}100%{background-color:transparent}}
+        .overlay{transition:opacity .3s ease}
+        .filter-btn{background:#fff;color:#0F3D7A;border:1px solid #ADD6FF}
+        .filter-btn:hover{background:#EBF5FF}
+        .filter-btn.active-filter{background:#2B7DE9;color:#fff;border-color:#2B7DE9}
+        .whatsapp-float{animation:floatWA 2s ease-in-out infinite}
+        @keyframes floatWA{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+        .menu-btn{transition:all .15s ease}
+        .menu-btn:hover{transform:scale(1.03);box-shadow:0 4px 12px rgba(43,125,233,.2)}
+        .menu-btn:active{transform:scale(0.97)}
+        .product-visual{display:flex;align-items:center;justify-content:center;height:100%;width:100%;transition:transform .4s ease}
+        .product-card:hover .product-visual{transform:scale(1.08)}
+        ::-webkit-scrollbar{width:6px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:#ADD6FF;border-radius:3px}
+    </style>
 </head>
-<body>
-<header>
-  <div class="wrap hero">
-    <div>
-      <h1>5 Semáforos con Arduino Mega</h1>
-      <p class="muted">Proyecto educativo con <b>LEDs</b>, <b>resistencias</b>, <b>jumpers</b> y <b>breadboard</b>. Controlamos 5 conjuntos (Rojo-Amarillo-Verde) desde un Arduino Mega, con simulación visual y código listo para cargar.</p>
-      <div class="note" style="margin-top:14px">
-        Objetivo: practicar salidas digitales, organización por arrays y cableado seguro usando resistencias de <b>220&nbsp;Ω</b> por LED.
-      </div>
+<body class="bg-white text-brand-900">
+
+    <!-- NAVBAR -->
+    <nav class="sticky top-0 z-50 bg-white border-b border-brand-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-2.5">
+                <img src="https://z-cdn-media.chatglm.cn/files/e91ee27d-42dd-4a02-b571-86fb1ca069c7.png?auth_key=1878721737-611f94ca45ca482b9c8f80992bd09479-0-0d21749fbe9c1ca0045e797e095feec8" alt="Ramazzini" class="h-11 w-auto">
+            </a>
+            <div class="hidden lg:flex items-center gap-7">
+                <a href="#inicio" class="text-sm font-medium text-brand-800 hover:text-brand-600">Inicio</a>
+                <a href="#tienda" class="text-sm font-medium text-brand-800 hover:text-brand-600 flex items-center gap-1"><i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>Tienda</a>
+                <a href="#video" class="text-sm font-medium text-brand-800 hover:text-brand-600 flex items-center gap-1"><i data-lucide="play-circle" class="w-3.5 h-3.5"></i>Cómo trabajamos</a>
+                <a href="#planes" class="text-sm font-medium text-brand-800 hover:text-brand-600">Planes</a>
+                <a href="#contacto" class="text-sm font-medium text-brand-800 hover:text-brand-600">Contacto</a>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleCart()" class="relative p-2.5 rounded-full hover:bg-brand-50 transition-colors">
+                    <i data-lucide="shopping-cart" class="w-5 h-5 text-brand-800"></i>
+                    <span id="cartBadge" class="hidden absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 rounded-full border-2 border-white items-center justify-center badge-cart"><span class="text-[10px] text-white font-bold" id="cartCount">0</span></span>
+                </button>
+                <a href="https://wa.me/50258415734" target="_blank" class="hidden md:flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold px-4 py-2 rounded-full transition-all">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    WhatsApp
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section id="inicio" class="hero-bg min-h-[90vh] flex items-center relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-500/10 rounded-full blur-3xl"></div>
+        <div class="max-w-7xl mx-auto px-6 w-full grid lg:grid-cols-2 gap-12 items-center relative z-10 py-20">
+            <div>
+                <h1 class="text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold tracking-tight text-white leading-[1.1] mb-6">Reparación y Mantenimiento de Computadoras</h1>
+                <p class="text-lg text-brand-200 leading-relaxed mb-8 max-w-xl"><strong class="text-white">Confianza · Lógica · Solución · Eficacia</strong></p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="https://wa.me/50258415734" target="_blank" class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold px-7 py-3.5 rounded-full transition-all">Solicitar servicio</a>
+                    <a href="#tienda" class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium px-7 py-3.5 rounded-full transition-all"><i data-lucide="shopping-bag" class="w-4 h-4"></i>Ver tienda</a>
+                </div>
+            </div>
+            <div class="flex justify-center lg:justify-end"><div class="relative"><div class="absolute inset-0 bg-brand-400/20 rounded-full blur-3xl scale-75"></div><img src="https://z-cdn-media.chatglm.cn/files/e91ee27d-42dd-4a02-b571-86fb1ca069c7.png?auth_key=1878721737-611f94ca45ca482b9c8f80992bd09479-0-0d21749fbe9c1ca0045e797e095feec8" alt="Asistente" class="w-72 md:w-80 relative z-10 animate-float drop-shadow-2xl"></div></div>
+        </div>
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <p class="text-white mt-3 max-w-2xl mx-auto">Calidad, confianza y soporte técnico profesional en cada servicio.</p>
+            </div>
+            <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-brand-200/30 border-4 border-brand-100 aspect-video bg-brand-900">
+                <video controls class="absolute inset-0 w-full h-full object-contain bg-brand-900">
+                    <source src="Servicio Tecnico presentacion .mp4" type="video/mp4">
+                    Tu navegador no soporta el elemento de video.
+                </video>
+            </div>
+        </div>
+    </section>
+
+    <!-- TIENDA -->
+    <section id="tienda" class="py-24 bg-surface-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-6"><span class="text-xs font-semibold uppercase tracking-widest text-brand-600">Tienda online</span><h2 class="text-3xl md:text-4xl font-bold tracking-tight text-brand-900 mt-3">Repuestos y componentes</h2></div>
+            <div class="flex flex-wrap justify-center gap-2 mb-12">
+                <button onclick="filterProducts('all')" class="filter-btn active-filter px-5 py-2 rounded-full text-sm font-medium transition-all" data-cat="all">Todos</button>
+                <button onclick="filterProducts('ram')" class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-all" data-cat="ram">Memoria RAM</button>
+                <button onclick="filterProducts('disco')" class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-all" data-cat="disco">Discos</button>
+                <button onclick="filterProducts('fuente')" class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-all" data-cat="fuente">Fuentes</button>
+                <button onclick="filterProducts('ventilador')" class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-all" data-cat="ventilador">Ventilación</button>
+                <button onclick="filterProducts('cable')" class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-all" data-cat="cable">Cables</button>
+                <button onclick="filterProducts('tarjeta')" class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-all" data-cat="tarjeta">Tarjetas</button>
+            </div>
+            <div id="productsGrid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+        </div>
+    </section>
+
+    <!-- VIDEO PRESENTACIÓN -->
+    <section id="video" class="py-24 bg-white">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <span class="text-xs font-semibold uppercase tracking-widest text-brand-600">Conócenos</span>
+                <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-brand-900 mt-3">Mira cómo trabajamos</h2>
+                <p class="text-brand-600 mt-3 max-w-2xl mx-auto">Calidad, confianza y soporte técnico profesional en cada servicio.</p>
+            </div>
+            <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-brand-200/30 border-4 border-brand-100 aspect-video bg-brand-900">
+                <video controls class="absolute inset-0 w-full h-full object-contain bg-brand-900">
+                    <source src="Servicio Técnico de Computadoras.mp4" type="video/mp4">
+                    Tu navegador no soporta el elemento de video.
+                </video>
+            </div>
+            <p></p>
+            <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-brand-200/30 border-4 border-brand-100 aspect-video bg-brand-900 mt-8">
+                <video controls class="absolute inset-0 w-full h-full object-contain bg-brand-900">
+                    <source src="Servicio Técnico de Computadoras 1.mp4" type="video/mp4">
+                    Tu navegador no soporta el elemento de video.
+                </video>
+            </div>
+        </div>
+    </section>
+
+    <!-- PLANES -->
+    <section id="planes" class="py-24 bg-surface-50">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="text-center mb-16"><h2 class="text-3xl md:text-4xl font-bold tracking-tight text-brand-900">Nuestros planes</h2></div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="card-hover border border-brand-100 rounded-2xl p-8 bg-white">
+                    <h3 class="text-lg font-semibold text-brand-900">Básico</h3>
+                    <div class="mt-6 mb-6"><span class="text-4xl font-bold text-brand-900">Q150</span></div>
+                    <ul class="space-y-2 mb-8 text-sm text-brand-700">
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-600"></i>Limpieza física</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-600"></i>Pasta térmica</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-600"></i>Optimización</li>
+                    </ul>
+                    <a href="https://wa.me/50258415734?text=Hola%2C%20estoy%20interesado%20en%20el%20plan%20*B%C3%A1sico%20(Q150)*" target="_blank" class="block text-center py-3 border-2 border-brand-200 text-brand-700 font-medium rounded-full hover:bg-brand-50">Solicitar</a>
+                </div>
+                <div class="card-hover border-2 border-brand-600 rounded-2xl p-8 bg-white relative shadow-xl shadow-brand-200/30">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-600 text-white text-xs font-semibold px-4 py-1 rounded-full">Popular</div>
+                    <h3 class="text-lg font-semibold text-brand-900">Completo</h3>
+                    <div class="mt-6 mb-6"><span class="text-4xl font-bold text-brand-900">Q350</span></div>
+                    <ul class="space-y-2 mb-8 text-sm text-brand-700">
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-600"></i>Todo lo básico</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-600"></i>Reparación hardware</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-600"></i>Garantía 30 días</li>
+                    </ul>
+                    <a href="https://wa.me/50258415734?text=Hola%2C%20estoy%20interesado%20en%20el%20plan%20*Completo%20(Q350)*" target="_blank" class="block text-center py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-full">Solicitar</a>
+                </div>
+                <div class="card-hover border border-brand-100 rounded-2xl p-8 bg-white">
+                    <h3 class="text-lg font-semibold text-brand-900">Empresarial</h3>
+                    <div class="mt-6 mb-6"><span class="text-4xl font-bold text-brand-900">Q800</span><span class="text-brand-500 text-sm">/mes</span></div>
+                    <ul class="space-y-2 mb-8 text-sm text-brand-700">
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-600"></i>Todo lo completo</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-600"></i>Hasta 5 equipos</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-600"></i>Soporte prioritario</li>
+                    </ul>
+                    <a href="https://wa.me/50258415734?text=Hola%2C%20estoy%20interesado%20en%20el%20plan%20*Empresarial%20(Q800%2Fmes)*" target="_blank" class="block text-center py-3 border-2 border-brand-200 text-brand-700 font-medium rounded-full hover:bg-brand-50">Solicitar</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section id="contacto" class="py-24 bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 relative overflow-hidden">
+        <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+            <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">¿Tu computadora tiene problemas?</h2>
+            <p class="text-brand-200 text-lg mb-10">Contáctanos ahora y recibe atención inmediata.</p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="https://wa.me/50258415734" target="_blank" class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold px-8 py-4 rounded-full transition-all hover:scale-105">WhatsApp</a>
+                <button onclick="toggleChat()" class="inline-flex items-center gap-2 bg-white text-brand-700 font-semibold px-8 py-4 rounded-full hover:shadow-xl transition-all hover:scale-105"><i data-lucide="message-circle" class="w-5 h-5"></i>Chat en vivo</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-brand-900 py-12"><div class="max-w-7xl mx-auto px-6 text-center"><img src="https://z-cdn-media.chatglm.cn/files/e91ee27d-42dd-4a02-b571-86fb1ca069c7.png?auth_key=1878721737-611f94ca45ca482b9c8f80992bd09479-0-0d21749fbe9c1ca0045e797e095feec8" alt="Ramazzini" class="h-14 w-auto mx-auto mb-4 brightness-200"><p class="text-brand-400 text-sm">© 2025 Ramazzini Soporte Técnico</p></div></footer>
+
+    <!-- WHATSAPP -->
+    <a href="https://wa.me/50258415734" target="_blank" class="whatsapp-float fixed bottom-6 left-6 z-40 w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 shadow-xl flex items-center justify-center transition-all hover:scale-110"><svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+
+    <!-- CART PANEL -->
+    <div id="cartOverlay" class="overlay fixed inset-0 bg-black/30 z-[55] hidden" onclick="toggleCart()"></div>
+    <div id="cartPanel" class="cart-panel hidden-cart fixed top-20 right-6 z-[56] w-[400px] max-w-[calc(100vw-48px)] bg-white rounded-2xl shadow-2xl border border-brand-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-brand-600 to-brand-500 px-5 py-4 flex items-center justify-between"><div class="flex items-center gap-2"><i data-lucide="shopping-cart" class="w-5 h-5 text-white"></i><h3 class="text-sm font-semibold text-white">Mi Carrito</h3><span id="cartPanelCount" class="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span></div><button onclick="toggleCart()" class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center"><i data-lucide="x" class="w-4 h-4 text-white"></i></button></div>
+        <div id="cartItems" class="max-h-[350px] overflow-y-auto p-4 space-y-3"></div>
+        <div id="cartFooter" class="hidden border-t border-brand-100 p-5 bg-surface-50"><div class="flex items-center justify-between mb-4"><span class="text-sm text-brand-600">Subtotal</span><span class="text-lg font-bold text-brand-900" id="cartTotal">Q0.00</span></div><button onclick="openCheckoutModal()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-full transition-colors flex items-center justify-center gap-2"><i data-lucide="credit-card" class="w-4 h-4"></i>Proceder al pago</button></div>
     </div>
-    <div class="card">
-      <div class="controls">
-        <button id="startBtn" class="btn">▶ Iniciar simulación</button>
-        <button id="stopBtn" class="btn">⏹ Detener</button>
-        <label for="spd">Velocidad</label>
-        <input id="spd" type="range" min="0.4" max="2.0" step="0.1" value="1.0" />
-        <span id="spdVal" class="muted">1.0×</span>
-      </div>
-      <div class="yard" id="yard">
-        <!-- 5 postes/semaforos -->
-      </div>
+
+    <!-- CHECKOUT MODAL -->
+    <div id="checkoutModal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/50 p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full mx-auto my-8 overflow-hidden animate-slide-up">
+            <div class="bg-gradient-to-r from-brand-600 to-brand-500 p-6 text-center">
+                <i data-lucide="package" class="w-10 h-10 text-white mx-auto mb-2"></i>
+                <h3 class="text-xl font-bold text-white">Finalizar Pedido</h3>
+                <p class="text-brand-100 text-sm mt-1">Completa tus datos</p>
+            </div>
+            <form id="checkoutForm" action="https://formspree.io/f/xjglqkdw" method="POST" class="p-6 space-y-4">
+                <input type="hidden" name="_subject" id="formSubject" value="🛒 Nuevo Pedido — Ramazzini">
+                <input type="hidden" name="pedido_id" id="formPedidoId">
+                <input type="hidden" name="fecha" id="formFecha">
+                <input type="hidden" name="productos" id="formProductos">
+                <input type="hidden" name="total" id="formTotal">
+                <input type="hidden" name="metodo_pago" id="formMetodoPago">
+                <div>
+                    <label class="block text-sm font-medium text-brand-900 mb-1">Nombre completo *</label>
+                    <input type="text" name="nombre" id="custName" required class="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-brand-900 mb-1">Teléfono *</label>
+                        <input type="tel" name="telefono" id="custPhone" required class="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-brand-900 mb-1">Correo</label>
+                        <input type="email" name="email" id="custEmail" class="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-brand-900 mb-1">Dirección de envío *</label>
+                    <textarea name="direccion" id="custAddress" required rows="2" class="w-full border border-brand-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-brand-900 mb-2">Método de pago *</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex items-center gap-2 border border-brand-200 rounded-xl p-3 cursor-pointer hover:bg-brand-50 transition-colors"><input type="radio" name="pago_seleccion" value="Efectivo" required class="accent-brand-600"><span class="text-sm font-medium">💵 Efectivo</span></label>
+                        <label class="flex items-center gap-2 border border-brand-200 rounded-xl p-3 cursor-pointer hover:bg-brand-50 transition-colors"><input type="radio" name="pago_seleccion" value="Transferencia" class="accent-brand-600"><span class="text-sm font-medium">🏦 Transferencia</span></label>
+                        <label class="flex items-center gap-2 border border-brand-200 rounded-xl p-3 cursor-pointer hover:bg-brand-50 transition-colors"><input type="radio" name="pago_seleccion" value="Tarjeta" class="accent-brand-600"><span class="text-sm font-medium">💳 Tarjeta</span></label>
+                    </div>
+                </div>
+                <div class="bg-surface-50 rounded-xl p-4 border border-brand-100">
+                    <h4 class="text-sm font-semibold text-brand-900 mb-2">Resumen</h4>
+                    <div id="checkoutSummary" class="space-y-1 text-sm"></div>
+                </div>
+                <div id="checkoutError" class="hidden text-red-600 text-sm text-center font-medium"></div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeCheckoutModal()" class="flex-1 py-3 border-2 border-brand-200 text-brand-700 font-medium rounded-full hover:bg-brand-50">Cancelar</button>
+                    <button type="submit" id="submitBtn" class="flex-1 py-3 bg-accent-500 hover:bg-accent-600 text-white font-semibold rounded-full flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span id="submitBtnText">Confirmar Pedido</span>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
-</header>
 
-<main class="wrap">
-  <section>
-    <h2>Materiales</h2>
-    <div class="grid two">
-      <div class="card list">
-        <ul>
-          <li>1 × Arduino Mega 2560 (o compatible)</li>
-          <li>1 × Breadboard grande</li>
-          <li>15 × LEDs (5 rojos, 5 amarillos, 5 verdes)</li>
-          <li>15 × Resistencias 220&nbsp;Ω (o 330&nbsp;Ω)</li>
-          <li>Muchos jumpers macho-macho</li>
-          <li>Cable USB para programar</li>
-          <li>Fuente 5&nbsp;V (la del USB basta para pruebas)</li>
-        </ul>
-      </div>
-      <div class="card list">
-        <ul>
-          <li>GND común a todas las líneas negativas de la breadboard.</li>
-          <li>Ánodo del LED → <b>resistencia</b> → <b>pin digital</b>.</li>
-          <li>Cátodo del LED → <b>GND</b>.</li>
-          <li>Usamos 15 pines digitales del Mega, uno por LED.</li>
-        </ul>
-      </div>
+    <!-- SUCCESS MODAL -->
+    <div id="successModal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/50">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full mx-4 animate-slide-up text-center p-8">
+            <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4"><i data-lucide="check-circle" class="w-8 h-8 text-green-600"></i></div>
+            <h3 class="text-xl font-bold text-brand-900 mb-2">¡Pedido confirmado!</h3>
+            <p class="text-brand-600 text-sm mb-6">Tu pedido fue enviado exitosamente. Te contactaremos pronto.</p>
+            <button onclick="closeSuccessModal()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-full">Entendido</button>
+        </div>
     </div>
-  </section>
 
-  <section>
-    <h2>Mapeo de pines (Arduino Mega → LED)</h2>
-    <p class="muted">Cada semáforo tiene 3 LEDs: Rojo (R), Amarillo (A), Verde (V). Puedes cambiar los pines si lo prefieres.</p>
-    <div class="card" style="overflow:auto">
-      <table>
-        <thead><tr><th>Semáforo</th><th>Rojo</th><th>Amarillo</th><th>Verde</th></tr></thead>
-        <tbody>
-          <tr><td>S1</td><td>13</td><td>12</td><td>11</td></tr>
-          <tr><td>S2</td><td>10</td><td>9</td><td>8</td></tr>
-          <tr><td>S3</td><td>5</td><td>6</td><td>7</td></tr>
-          <tr><td>S4</td><td>2</td><td>3</td><td>4</td></tr>
-          <tr><td>S5</td><td>10</td><td>9</td><td>8</td></tr>
-        </tbody>
-      </table>
+    <!-- CHATBOT -->
+    <button onclick="toggleChat()" class="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-brand-600 hover:bg-brand-700 shadow-xl shadow-brand-600/30 flex items-center justify-center transition-all duration-300 hover:scale-110 group">
+        <i data-lucide="message-circle" class="w-7 h-7 text-white" id="chatIconOpen"></i>
+        <i data-lucide="x" class="w-7 h-7 text-white hidden" id="chatIconClose"></i>
+        <span id="chatNotification" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-white flex items-center justify-center"><span class="text-[10px] text-white font-bold">1</span></span>
+        <span class="absolute inset-0 rounded-full bg-brand-400 pulse-ring"></span>
+    </button>
+    <div id="chatWindow" class="chatbot-window hidden-chat fixed bottom-24 right-6 z-50 w-[380px] max-w-[calc(100vw-48px)] bg-white rounded-3xl shadow-2xl border border-brand-100 overflow-hidden flex flex-col" style="height:560px;max-height:calc(100vh - 140px)">
+        <div class="bg-gradient-to-r from-brand-600 to-brand-500 px-5 py-3 flex items-center gap-3 shrink-0"><img src="https://z-cdn-media.chatglm.cn/files/e91ee27d-42dd-4a02-b571-86fb1ca069c7.png?auth_key=1878721737-611f94ca45ca482b9c8f80992bd09479-0-0d21749fbe9c1ca0045e797e095feec8" alt="Ramazzini" class="w-9 h-9 rounded-full bg-white/20 object-contain p-0.5"><div class="flex-1"><p class="text-sm font-semibold text-white">Ramazzini</p><p class="text-xs text-brand-100">Centro de ayuda</p></div><button onclick="toggleChat()" class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center"><i data-lucide="minus" class="w-4 h-4 text-white"></i></button></div>
+        <div id="chatMessages" class="flex-1 overflow-y-auto px-5 py-4 space-y-4 bg-surface-50"></div>
+        <div id="menuButtons" class="px-4 py-3 bg-white border-t border-brand-100 shrink-0"></div>
     </div>
-    <p class="muted">Consejo: lleva líneas de 5&nbsp;V y GND por los rieles laterales de la breadboard para ordenar el cableado.</p>
-  </section>
 
-  <section class="grid two">
-    <div>
-      <h2>Montaje paso a paso</h2>
-      <ol class="card list">
-        <li>Conecta el <b>GND</b> del Arduino a la línea negativa de la breadboard.</li>
-        <li>Coloca los 15 LEDs: en cada semáforo agrupa R-A-V (ánodo a la derecha es práctico).</li>
-        <li>Del <b>ánodo</b> de cada LED, pon una <b>resistencia 220&nbsp;Ω</b> hacia una fila libre.</li>
-        <li>De esa fila, saca un <b>jumper</b> al pin asignado (ver tabla de pines).</li>
-        <li>Conecta cada <b>cátodo</b> al riel de <b>GND</b>.</li>
-        <li>Revisa polaridad de LEDs (la pata larga suele ser el ánodo).</li>
-        <li>Programa el Arduino con el sketch de abajo y prueba.</li>
-      </ol>
-    </div>
-    <div>
-      <h2>Lógica sugerida</h2>
-      <div class="card list">
-        <ul>
-          <li>Secuencia tipo “onda”: S1 en verde → S2 → S3 → S4 → S5.</li>
-          <li>Para cada S<i>n</i>: <span class="kbd">Verde</span> (t_v), <span class="kbd">Amarillo</span> (t_a), y el resto en rojo.</li>
-          <li>Evita encender dos verdes conflictivos si simulas intersecciones reales.</li>
-        </ul>
-      </div>
-    </div>
-  </section>
+    <script>
+    lucide.createIcons();
+    const L='https://z-cdn-media.chatglm.cn/files/e91ee27d-42dd-4a02-b571-86fb1ca069c7.png?auth_key=1878721737-611f94ca45ca482b9c8f80992bd09479-0-0d21749fbe9c1ca0045e797e095feec8';
 
-  <section>
-    <h2>Código Arduino </h2>
-    <p class="muted">Copia esto en el IDE de Arduino como <code>semaforos_mega.ino</code>. Asegúrate de que los pines coincidan con tu mapeo.</p>
-    <pre><code class="language-cpp">// Proyecto: 5 semáforos con Arduino Mega
-// Cada LED debe llevar su resistencia (220 Ω o 330 Ω) en serie.
+    // ===== PRODUCTOS — Agrega el link de imagen en la propiedad "image" =====
+    const products=[
+        // ── RAM ──
+        {id:1,name:'Memoria RAM DDR4 8GB 2666MHz',category:'ram',price:275,oldPrice:350,image:'https://cdn.kemik.gt/2023/03/CT8G4SFRA266-MEMORIA-RAM-DDR4-1200X1200-1-1-526x526.-500x500.jpg',badge:'Popular',stock:25},
+        {id:2,name:'Memoria RAM DDR4 16GB 3200MHz',category:'ram',price:475,oldPrice:null,image:'https://cdn.kemik.gt/2023/11/BRDDR4PC832NTB-BROCS-1200x1200-01.-500x500.jpg',badge:null,stock:18},
+        {id:3,name:'Memoria RAM DDR5 32GB 4800MHz',category:'ram',price:875,oldPrice:1100,image:'https://cdn.kemik.gt/2023/08/AD5S480032G-S-1200x1200-1.-500x500.jpg',badge:'Nuevo',stock:10},
+        {id:4,name:'Memoria RAM DDR4 4GB 2400MHz',category:'ram',price:145,oldPrice:null,image:'https://www.360.gt/wp-content/uploads/2018/08/01-HYNIX-4GB-2400MHZ.jpg',badge:null,stock:35},
+        {id:5,name:'Memoria RAM DDR5 16GB 5600MHz',category:'ram',price:675,oldPrice:800,image:'https://www.intelaf.com/images/productos/gran/NOT-DR5KN1648FI.jpg',badge:'Oferta',stock:14},
+        // ── DISCOS ──
+        {id:6,name:'SSD SATA 480GB 2.5" 7mm',category:'disco',price:295,oldPrice:null,image:'https://img.pacifiko.com/PROD/resize/1/500x500/B09TN1VKZL.jpg',badge:null,stock:30},
+        {id:7,name:'SSD NVMe M.2 1TB PCIe Gen4',category:'disco',price:595,oldPrice:750,image:'https://img.pacifiko.com/PROD/resize/1/500x500/MDY0MmI2NT.jpg',badge:'Oferta',stock:15},
+        {id:8,name:'HDD Seagate Barracuda 2TB',category:'disco',price:395,oldPrice:null,image:'https://img.pacifiko.com/PROD/resize/1/1000x1000/N2MyNWRmMT.png',badge:null,stock:22},
+        {id:9,name:'SSD SATA 240GB 2.5"',category:'disco',price:175,oldPrice:220,image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQJIfO41reF2DSsrZM6IKgFqLUEjoSLfy5fA&s',badge:'Económico',stock:40},
+        {id:10,name:'SSD NVMe M.2 512GB PCIe Gen3',category:'disco',price:425,oldPrice:null,image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsYa6ePr2UssMluDygcNqEpvEK1Fquv4FUgg&s',badge:null,stock:20},
+        {id:11,name:'HDD WD Blue 1TB 7200RPM',category:'disco',price:225,oldPrice:null,image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTteMkmYnmrL58UhmyvslNnw7JBjxzgUjQf_Q&s',badge:null,stock:28},
+        // ── FUENTES ──
+        {id:12,name:'Fuente de Poder 600W 80+',category:'fuente',price:525,oldPrice:650,image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYM8--8vs4VG3DbfGv7KJlQzxuWonAEpnDww&s',badge:null,stock:12},
+        {id:13,name:'Fuente de Poder 800W Modular',category:'fuente',price:795,oldPrice:null,image:'https://cdn.kemik.gt/2023/07/200-GE-0800-V1-FUENTE-DE-PODER-EVGA-1200X1200-1.-500x500.jpg',badge:'Premium',stock:8},
+        {id:14,name:'Fuente de Poder 500W 80+ White',category:'fuente',price:395,oldPrice:480,image:'https://cdn.kemik.gt/2019/04/image-1-1-526x526.jpg',badge:'Económico',stock:18},
+        {id:15,name:'Fuente de Poder 1000W 80+ Gold',category:'fuente',price:1195,oldPrice:null,image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsU-L4iJLDfYVdnEvJS_6-QnhA1rJhg0iLUg&s',badge:'Pro',stock:5},
+        // ── VENTILADORES ──
+        {id:16,name:'Ventilador CPU Cooler 120mm',category:'ventilador',price:155,oldPrice:195,image:'https://i.ebayimg.com/images/g/iC8AAeSwZU5p4EcW/s-l1200.webp',badge:null,stock:40},
+        {id:17,name:'Kit Ventiladores RGB 3x 120mm',category:'ventilador',price:345,oldPrice:null,image:'https://img.pacifiko.com/PROD/resize/1/500x500/B0C64WLQSK.jpg',badge:'Popular',stock:20},
+        {id:18,name:'Ventilador CPU Cooler 92mm',category:'ventilador',price:115,oldPrice:null,image:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSr9uKafFRorTiymJqeGZ3zZBZdEBB-MDdpYw&s',badge:null,stock:30},
+        {id:19,name:'Disipador Líquido AIO 240mm RGB',category:'ventilador',price:695,oldPrice:850,image:'https://www.macrosistemas.com/wp-content/uploads/1298-1-1.jpg',badge:'Nuevo',stock:7},
+        // ── CABLES ──
+        {id:20,name:'Cable HDMI 2.1 Ultra High Speed 2m',category:'cable',price:75,oldPrice:null,image:'',badge:null,stock:50},
+        {id:21,name:'Cable SATA III 6Gbps Pack x3',category:'cable',price:55,oldPrice:85,image:'',badge:'Oferta',stock:60},
+        {id:22,name:'Cable DisplayPort 1.4 8K 2m',category:'cable',price:95,oldPrice:null,image:'',badge:null,stock:45},
+        {id:23,name:'Cable USB-C a USB-C 100W 1m',category:'cable',price:65,oldPrice:null,image:'',badge:null,stock:55},
+        {id:24,name:'Cable de Poder AC 1.5m',category:'cable',price:45,oldPrice:null,image:'',badge:null,stock:70},
+        {id:25,name:'Cable VGA HD15 1.8m',category:'cable',price:55,oldPrice:75,image:'',badge:'Económico',stock:40},
+        // ── TARJETAS ──
+        {id:26,name:'Tarjeta de Video RX 6600 8GB',category:'tarjeta',price:2195,oldPrice:2495,image:'',badge:'Oferta',stock:5},
+        {id:27,name:'Tarjeta de Red WiFi 6 PCIe',category:'tarjeta',price:235,oldPrice:null,image:'',badge:'Nuevo',stock:35},
+        {id:28,name:'Tarjeta de Sonido 7.1 PCIe',category:'tarjeta',price:275,oldPrice:350,image:'',badge:null,stock:15},
+        {id:29,name:'Tarjeta de Video GTX 1650 4GB',category:'tarjeta',price:1495,oldPrice:null,image:'',badge:null,stock:8},
+        {id:30,name:'Tarjeta de Red Ethernet PCIe Gigabit',category:'tarjeta',price:125,oldPrice:null,image:'',badge:null,stock:30}
+    ];
 
-
-
-// C++ code
-//
-void setup()
-{
-  pinMode(13, OUTPUT);
-  pinMode(12, OUTPUT);
-  pinMode(11, OUTPUT);
-  pinMode(10, OUTPUT);
-  pinMode(9, OUTPUT);
-  pinMode(8, OUTPUT);
-  pinMode(7, OUTPUT);
-  pinMode(6, OUTPUT);
-  pinMode(5, OUTPUT);
-  pinMode(4, OUTPUT);
-  pinMode(3, OUTPUT);
-  pinMode(2, OUTPUT);
-}
-
-void loop()
-{
- 
-  digitalWrite(4,HIGH);
-  digitalWrite(3, LOW);
-  digitalWrite(2, LOW);
-  digitalWrite(5,HIGH);
-  digitalWrite(8,LOW);
-  digitalWrite(6, LOW);
-  digitalWrite(7, LOW);
-  digitalWrite(10, HIGH);
-  digitalWrite(9,LOW);
-  digitalWrite(13, HIGH);
-  delay(5000);
- 
-  digitalWrite(4, LOW);
- delay(500);
-  digitalWrite(4,HIGH);
- delay(500);
-digitalWrite(4,LOW);
- delay(500);
-  digitalWrite(4,HIGH);
- delay(500);
-  digitalWrite(4,LOW);
- delay(500);
- 
-  digitalWrite(3, HIGH);
- delay(1000);
-  digitalWrite(3, LOW);
- delay(500);
-  digitalWrite(3, HIGH);
- delay(500);
-  digitalWrite(3, LOW);
- delay(500);
-  digitalWrite(3, HIGH);
- delay(500);
- 
- 
-  digitalWrite(5,HIGH);
-  digitalWrite(8,HIGH);
-  digitalWrite(6, LOW);
-  digitalWrite(7, LOW);
-  digitalWrite(10, LOW);
-  digitalWrite(9,LOW);
-  digitalWrite(3, LOW);
-  digitalWrite(13, HIGH);
-  digitalWrite(2, HIGH);
-  delay(5000);
- 
-  digitalWrite(8, LOW);
- delay(500);
-  digitalWrite(8,HIGH);
- delay(500);
-digitalWrite(8,LOW);
- delay(500);
-  digitalWrite(8,HIGH);
- delay(500);
- 
-  digitalWrite(10,LOW);
-  digitalWrite(9,HIGH);
-  digitalWrite(8,LOW);
-  digitalWrite(13, HIGH);
-  delay(2000);
- 
-   digitalWrite(9,LOW);
- delay(500);
-  digitalWrite(9,HIGH);
- delay(500);
-  digitalWrite(9,LOW);
- delay(500);
-  digitalWrite(9,HIGH);
- delay(500);
- 
-  digitalWrite(5, LOW);
-  digitalWrite(6, LOW);
-  digitalWrite(7,HIGH);
-  digitalWrite(8, LOW);
-  digitalWrite(10,HIGH);
-  digitalWrite(9, LOW);
-  digitalWrite(13, HIGH);
-  delay(5000);
- 
- delay(500);
-digitalWrite(7, LOW);
- delay(500);
-  digitalWrite(7, HIGH);
- delay(500);
-digitalWrite(7, LOW);
- delay(500);
-  digitalWrite(7, HIGH);
- delay(500);
- 
-   digitalWrite(5, LOW);
-  digitalWrite(6,HIGH);
-  digitalWrite(7, LOW);
-  delay(2000);
- 
-   digitalWrite(6, LOW);
- delay(500);
-  digitalWrite(6, HIGH);
- delay(500);
-  digitalWrite(6, LOW);
- delay(500);
-  digitalWrite(6, HIGH);
- delay(500);
- 
-  digitalWrite(5, HIGH);
-  digitalWrite(6, LOW);
-  digitalWrite(7,LOW);
-  digitalWrite(8, LOW);
-  digitalWrite(10,HIGH);
-  digitalWrite(9, LOW);
-  digitalWrite(11, HIGH);
-  digitalWrite(13, LOW);
- 
-  delay(5000);
- 
-  digitalWrite(11, LOW);
- delay(500);
-  digitalWrite(11, HIGH);
- delay(500);
-digitalWrite(11, LOW);
- delay(500);
-  digitalWrite(11, HIGH);
- delay(500);
-  digitalWrite(11, LOW);
- delay(500);
- 
-   
-digitalWrite(12, HIGH);//semaforo 1
- delay(1000);
-  digitalWrite(12, LOW);//semaforo 1
- delay(500);
-  digitalWrite(12, HIGH);//semaforo 1
- delay(500);
-digitalWrite(12, LOW);//semaforo 1
- delay(500);
-  digitalWrite(12, HIGH);//semaforo 1
- delay(500);
-  digitalWrite(12, LOW);//semaforo 1
- delay(500);
- 
-}
-</code></pre>
-    
-  </section>
-
-  <section>
-    <h2>Problemas comunes</h2>
-    <div class="grid two">
-      <div class="card list">
-        <ul>
-          <li><b>LED no enciende:</b> revisa polaridad (cátodo a GND) y la resistencia en serie.</li>
-          <li><b>Todos encendidos muy tenue:</b> GND sin buen contacto.</li>
-          <li><b>Secuencia rara:</b> pines del sketch no coinciden con tu cableado.</li>
-        </ul>
-      </div>
-      <div class="card list">
-        <ul>
-          <li><b>Demasiada corriente:</b> nunca alimentes un LED sin resistencia.</li>
-          <li><b>Desorden:</b> usa colores por función (rojo=5V/pines, negro=GND, amarillo=señales).</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
- <section id="galeria del proceso de nuestro proyecto">
-    <h2>Galería del proceso de nuestro proyecto</h2>
-    <div class="galeria ">
-        <div class="galeria-item"><img src="galeria/imag1.jpg" alt="Imagen 1"><p>Imagen 1</p></div>
-        <div class="galeria-item"><img src="galeria/imag2.jpg" alt="Imagen 2"><p>Imagen 2</p></div>
-        <div class="galeria-item"><img src="galeria/imag3.jpg" alt="Imagen 3"><p>Imagen 3</p></div>
-
-        <div class="galeria-item"><img src="galeria/imag4.jpg" alt="Imagen 4"><p>Imagen 4</p></div>
-        <div class="galeria-item"><img src="galeria/imag5.jpg" alt="Imagen 5"><p>Imagen 5</p></div>
-        <div class="galeria-item"><img src="galeria/imag6.jpg" alt="Imagen 6"><p>Imagen 6</p></div>
-
-        <div class="galeria-item"><img src="galeria/imag7.jpg" alt="Imagen 7"><p>Imagen 7</p></div>
-        <div class="galeria-item"><img src="galeria/imag9.jpg" alt="Imagen 8"><p>Imagen 8</p></div>
-        <div class="galeria-item"><img src="galeria/imag10.jpg" alt="Imagen 9"><p>Imagen 9</p></div>
-
-        <div class="galeria-item"><img src="galeria/imag11.jpg" alt="Imagen 10"><p>Imagen 10</p></div>
-        <div class="galeria-item"><img src="galeria/imag12.jpg" alt="Imagen 11"><p>Imagen 11</p></div>
-        <div class="galeria-item"><img src="galeria/imag13.jpg" alt="Imagen 12"><p>Imagen 12</p></div>
-    </div>
-</section>
-
-<style>
-#galeria {
-    padding: 20px;
-}
-
-.galeria {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-}
-
-.galeria-item {
-    text-align: center;
-    background: #f5f5f5;
-    padding: 10px;
-    border-radius: 8px;
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.galeria-item img {
-    width: 100%;
-    height: auto;
-    border-radius: 6px;
-}
-
-.galeria-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-}
-</style>
-
-
-
-  <footer class="wrap muted" style="padding-bottom:40px">
-    Alfredo Ramazzini 5to BACO
-  </footer>
-</main>
-
-<script>
-  // --- Construcción de los 5 semáforos visuales ---
-  const yard = document.getElementById('yard');
-  const COUNT = 5;
-  const posts = [];
-
-  for(let i=0;i<COUNT;i++){
-    const pole = document.createElement('div');
-    pole.className = 'pole';
-    pole.innerHTML = `
-      <div class="traffic" data-idx="${i}">
-        <div class="lamp red"></div>
-        <div class="lamp yellow"></div>
-        <div class="lamp green"></div>
-      </div>
-      <div class="foot"></div>
-      <div class="label">S${i+1}</div>
-    `;
-    yard.appendChild(pole);
-    posts.push(pole.querySelector('.traffic'));
-  }
-
-  // Utilidades
-  const lamps = (n)=>({
-    r: posts[n].querySelector('.lamp.red'),
-    y: posts[n].querySelector('.lamp.yellow'),
-    g: posts[n].querySelector('.lamp.green')
-  });
-
-  function setState(n, r,y,g){
-    const L = lamps(n);
-    L.r.classList.toggle('on', !!r);
-    L.y.classList.toggle('on', !!y);
-    L.g.classList.toggle('on', !!g);
-  }
-
-  function allRed(){
-    for(let i=0;i<COUNT;i++) setState(i, true,false,false);
-  }
-
-  // Simulación básica tipo “onda” (S1→S5)
-  let running = false, speed = 1.0;
-  const startBtn = document.getElementById('startBtn');
-  const stopBtn  = document.getElementById('stopBtn');
-  const spd      = document.getElementById('spd');
-  const spdVal   = document.getElementById('spdVal');
-
-  const T = { green: 1200, yellow: 450, redPause: 120 };
-
-  async function phase(n){
-    allRed(); 
-    await sleep(T.redPause / speed);
-
-    setState(n,false,false,true); 
-    await sleep(T.green / speed);
-
-    setState(n,false,true,false); 
-    await sleep(T.yellow / speed);
-
-    setState(n,true,false,false); 
-    await sleep(T.redPause / speed);
-  }
-
-  async function phaseDual(n1, n2){
-    allRed(); 
-    await sleep(T.redPause / speed);
-
-    setState(n1,false,false,true);
-    setState(n2,false,false,true);
-    await sleep(T.green / speed);
-
-    setState(n1,false,true,false);
-    setState(n2,false,true,false);
-    await sleep(T.yellow / speed);
-
-    setState(n1,true,false,false);
-    setState(n2,true,false,false);
-    await sleep(T.redPause / speed);
-  }
-
-  function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
-
-  async function run(){
-    if(running) return;
-    running = true;
-    while(running){
-        await phase(0);       // Semáforo 1
-        await phaseDual(1,4); // Semáforo 2 y 5 juntos
-        await phase(2);       // Semáforo 3
-        await phase(3);       // Semáforo 4
+    // Imagen placeholder para productos sin imagen
+    function getProductImage(p){
+        if(p.image) return p.image;
+        return `https://placehold.co/400x300/EBF5FF/2B7DE9?text=${encodeURIComponent(p.name.split(' ').slice(0,3).join(' '))}`;
     }
-  }
 
-  startBtn.addEventListener('click', ()=>{ run(); });
-  stopBtn.addEventListener('click', ()=>{
-    running = false;
-    allRed();
-  });
+    let cart=[];let currentFilter='all';
 
-  spd.addEventListener('input', e=>{
-    speed = parseFloat(e.target.value);
-    spdVal.textContent = speed.toFixed(1)+'×';
-  });
+    function renderProducts(filter='all'){
+        const grid=document.getElementById('productsGrid');
+        const filtered=filter==='all'?products:products.filter(p=>p.category===filter);
+        grid.innerHTML=filtered.map(p=>{
+            const inCart=cart.find(c=>c.id===p.id);const qty=inCart?inCart.qty:0;
+            return`<div class="product-card bg-white border border-brand-100 rounded-2xl overflow-hidden" id="product-${p.id}">
+                <div class="relative bg-surface-50 overflow-hidden h-48 flex items-center justify-center p-3">
+                    <img src="${getProductImage(p)}" alt="${p.name}" class="max-w-full max-h-full object-contain">
+                    ${p.badge?`<span class="absolute top-4 left-4 z-10 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${p.badge==='Oferta'?'bg-red-500 text-white':p.badge==='Nuevo'?'bg-emerald-500 text-white':p.badge==='Premium'||p.badge==='Pro'?'bg-yellow-500 text-white':p.badge==='Económico'?'bg-teal-500 text-white':'bg-brand-600 text-white'}">${p.badge}</span>`:''}
+                    ${qty>0?`<span class="absolute top-4 right-4 z-10 w-7 h-7 bg-brand-600 text-white text-xs font-bold rounded-full flex items-center justify-center">${qty}</span>`:''}
+                </div>
+                <div class="p-4">
+                    <h3 class="text-sm font-semibold text-brand-900 mb-2 leading-snug min-h-[2.5rem]">${p.name}</h3>
+                    <div class="flex items-center gap-2 mb-3"><span class="text-lg font-bold text-brand-900">Q${p.price.toFixed(2)}</span>${p.oldPrice?`<span class="text-sm text-brand-400 line-through">Q${p.oldPrice.toFixed(2)}</span>`:''}</div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs ${p.stock>10?'text-green-600':p.stock>0?'text-yellow-600':'text-red-500'}">${p.stock>10?'En stock':p.stock>0?'¡Solo '+p.stock+'!':'Agotado'}</span>
+                        <button onclick="addToCart(${p.id})" class="flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2 rounded-full transition-all ${p.stock===0?'opacity-50 pointer-events-none':''}">Agregar</button>
+                    </div>
+                </div></div>`}).join('');
+    }
+    function filterProducts(cat){currentFilter=cat;document.querySelectorAll('.filter-btn').forEach(b=>{b.classList.remove('active-filter');if(b.dataset.cat===cat)b.classList.add('active-filter')});renderProducts(cat)}
 
-  // Estado inicial
-  allRed();
-</script>
+    // CART
+    function addToCart(id){const p=products.find(x=>x.id===id);const e=cart.find(x=>x.id===id);if(e){if(e.qty<p.stock)e.qty++}else{cart.push({id,qty:1})}updateCartUI();renderProducts(currentFilter);const el=document.getElementById('product-'+id);if(el){el.classList.add('added-flash');setTimeout(()=>el.classList.remove('added-flash'),600)}}
+    function removeFromCart(id){cart=cart.filter(c=>c.id!==id);updateCartUI();renderProducts(currentFilter)}
+    function changeQty(id,d){const i=cart.find(c=>c.id===id);const p=products.find(x=>x.id===id);if(!i)return;i.qty+=d;if(i.qty<=0){removeFromCart(id);return}if(i.qty>p.stock)i.qty=p.stock;updateCartUI();renderProducts(currentFilter)}
+    function clearCart(){cart=[];updateCartUI();renderProducts(currentFilter)}
 
+    function updateCartUI(){
+        const badge=document.getElementById('cartBadge'),count=document.getElementById('cartCount'),pCount=document.getElementById('cartPanelCount'),items=document.getElementById('cartItems'),footer=document.getElementById('cartFooter'),total=document.getElementById('cartTotal');
+        const tI=cart.reduce((s,c)=>s+c.qty,0),tP=cart.reduce((s,c)=>{const p=products.find(x=>x.id===c.id);return s+(p.price*c.qty)},0);
+        if(tI>0){badge.classList.remove('hidden')}else{badge.classList.add('hidden')}
+        count.textContent=tI;pCount.textContent=tI;total.textContent=`Q${tP.toFixed(2)}`;
+        if(cart.length===0){items.innerHTML='<div class="text-center py-10"><p class="text-brand-400 text-sm">Tu carrito está vacío</p></div>';footer.classList.add('hidden')}
+        else{items.innerHTML=cart.map(c=>{const p=products.find(x=>x.id===c.id);return`<div class="flex items-center gap-3 bg-surface-50 rounded-xl p-3"><img src="${getProductImage(p)}" alt="${p.name}" class="w-14 h-14 rounded-lg object-contain shrink-0 bg-white p-1"><div class="flex-1 min-w-0"><p class="text-sm font-semibold text-brand-900 truncate">${p.name}</p><p class="text-sm font-bold text-brand-600">Q${(p.price*c.qty).toFixed(2)}</p></div><div class="flex items-center gap-1 shrink-0"><button onclick="changeQty(${p.id},-1)" class="w-7 h-7 rounded-full bg-brand-100 hover:bg-brand-200 flex items-center justify-center text-brand-700 font-bold text-sm">-</button><span class="w-7 text-center text-sm font-bold">${c.qty}</span><button onclick="changeQty(${p.id},1)" class="w-7 h-7 rounded-full bg-brand-100 hover:bg-brand-200 flex items-center justify-center text-brand-700 font-bold text-sm">+</button></div><button onclick="removeFromCart(${p.id})" class="text-red-400 hover:text-red-600 shrink-0 text-lg leading-none">&times;</button></div>`}).join('');footer.classList.remove('hidden')}
+    }
+
+    let cartOpen=false;
+    function toggleCart(){cartOpen=!cartOpen;const p=document.getElementById('cartPanel'),o=document.getElementById('cartOverlay');if(cartOpen){p.classList.remove('hidden-cart');p.classList.add('visible-cart');o.classList.remove('hidden')}else{p.classList.add('hidden-cart');p.classList.remove('visible-cart');o.classList.add('hidden')}}
+
+    // CHECKOUT
+    function openCheckoutModal(){
+        if(!cart.length)return;
+        toggleCart();
+        const tP=cart.reduce((s,c)=>{const p=products.find(x=>x.id===c.id);return s+(p.price*c.qty)},0);
+        const orderId=Date.now();
+        const orderDate=new Date().toLocaleString('es-GT');
+        document.getElementById('checkoutSummary').innerHTML=cart.map(c=>{
+            const p=products.find(x=>x.id===c.id);
+            return`<div class="flex justify-between"><span class="text-brand-600">${p.name} x${c.qty}</span><span class="font-semibold">Q${(p.price*c.qty).toFixed(2)}</span></div>`;
+        }).join('')+`<div class="border-t border-brand-200 mt-2 pt-2 flex justify-between font-bold text-brand-900"><span>Total</span><span>Q${tP.toFixed(2)}</span></div>`;
+        document.getElementById('formSubject').value=`🛒 Nuevo Pedido #${orderId} — Ramazzini`;
+        document.getElementById('formPedidoId').value=orderId;
+        document.getElementById('formFecha').value=orderDate;
+        document.getElementById('formTotal').value='Q'+tP.toFixed(2);
+        const itemsText=cart.map(c=>{const p=products.find(x=>x.id===c.id);return`• ${p.name} x${c.qty} = Q${(p.price*c.qty).toFixed(2)}`}).join('\n');
+        document.getElementById('formProductos').value=itemsText;
+        const m=document.getElementById('checkoutModal');m.classList.remove('hidden');m.classList.add('flex');lucide.createIcons();
+    }
+    function closeCheckoutModal(){document.getElementById('checkoutModal').classList.add('hidden');document.getElementById('checkoutModal').classList.remove('flex');document.getElementById('checkoutError').classList.add('hidden')}
+
+    document.addEventListener('DOMContentLoaded',function(){
+        const form=document.getElementById('checkoutForm');
+        form.addEventListener('submit',function(e){
+            e.preventDefault();
+            const errEl=document.getElementById('checkoutError');
+            const paymentRadio=document.querySelector('input[name="pago_seleccion"]:checked');
+            if(!paymentRadio){errEl.textContent='Selecciona un método de pago';errEl.classList.remove('hidden');return}
+            document.getElementById('formMetodoPago').value=paymentRadio.value;
+            errEl.classList.add('hidden');
+            const submitBtn=document.getElementById('submitBtn');
+            const submitBtnText=document.getElementById('submitBtnText');
+            submitBtn.disabled=true;submitBtn.classList.add('opacity-70','cursor-not-allowed');submitBtnText.textContent='Enviando...';
+            const formData=new FormData(form);
+            fetch(form.action,{method:'POST',body:formData,headers:{'Accept':'application/json'}})
+            .then(response=>{
+                if(response.ok){
+                    const tP=cart.reduce((s,c)=>{const p=products.find(x=>x.id===c.id);return s+(p.price*c.qty)},0);
+                    const order={id:document.getElementById('formPedidoId').value,date:document.getElementById('formFecha').value,status:'pendiente',customer:{name:document.getElementById('custName').value,phone:document.getElementById('custPhone').value,email:document.getElementById('custEmail').value,address:document.getElementById('custAddress').value,payment:paymentRadio.value},items:cart.map(c=>{const p=products.find(x=>x.id===c.id);return{name:p.name,qty:c.qty,price:p.price}}),total:tP};
+                    let orders=JSON.parse(localStorage.getItem('ramazzini_orders'))||[];
+                    orders.push(order);localStorage.setItem('ramazzini_orders',JSON.stringify(orders));
+                    closeCheckoutModal();form.reset();cart=[];updateCartUI();renderProducts(currentFilter);
+                    const s=document.getElementById('successModal');s.classList.remove('hidden');s.classList.add('flex');lucide.createIcons();
+                }else{errEl.textContent='Error al enviar. Intenta de nuevo.';errEl.classList.remove('hidden')}
+            })
+            .catch(error=>{console.error('Error:',error);errEl.textContent='Error de conexión. Verifica tu internet.';errEl.classList.remove('hidden')})
+            .finally(()=>{submitBtn.disabled=false;submitBtn.classList.remove('opacity-70','cursor-not-allowed');submitBtnText.textContent='Confirmar Pedido'});
+        });
+    });
+    function closeSuccessModal(){document.getElementById('successModal').classList.add('hidden');document.getElementById('successModal').classList.remove('flex')}
+
+    // ===== CHATBOT CON MENÚS EXPANDIDOS =====
+    const menus={
+        main:{
+            msg:'¡Bienvenido a Ramazzini! 👋\n\nSelecciona una opción:',
+            options:[
+                {id:'servicios',label:'🔧 Servicios'},
+                {id:'tienda_info',label:'🛒 Tienda'},
+                {id:'precios',label:'💰 Precios'},
+                {id:'problema',label:'⚠️ Tengo un problema'}
+            ]
+        },
+        servicios:{
+            msg:'🔧 Servicios:',
+            options:[
+                {id:'srv_hardware',label:'🔩 Reparación Hardware'},
+                {id:'srv_virus',label:'🛡️ Eliminación Virus'},
+                {id:'srv_mantenimiento',label:'⚙️ Mantenimiento'},
+                {id:'main',label:'⬅️ Volver'}
+            ]
+        },
+        srv_hardware:{msg:'🔩 Reparación Hardware\n• Pantallas • Teclados • Baterías\n• Discos • RAM • Placas\n⏱ 1-3 días | 💰 Desde Q350',options:[{id:'agendar_wa',label:'📱 Agendar'},{id:'servicios',label:'⬅️ Volver'}]},
+        srv_virus:{msg:'🛡️ Eliminación Virus\n• Malware y ransomware\n• Instalación antivirus\n⏱ 2-4 horas | 💰 Q150',options:[{id:'agendar_wa',label:'📱 Agendar'},{id:'servicios',label:'⬅️ Volver'}]},
+        srv_mantenimiento:{msg:'⚙️ Mantenimiento\n• Limpieza interna\n• Pasta térmica • Optimización\n⏱ 2-3 horas | 💰 Q150',options:[{id:'agendar_wa',label:'📱 Agendar'},{id:'servicios',label:'⬅️ Volver'}]},
+
+        tienda_info:{
+            msg:'🛒 ¿Qué categoría buscas?',
+            options:[
+                {id:'tienda_ram',label:'📦 Memoria RAM'},
+                {id:'tienda_discos',label:'💾 Discos'},
+                {id:'tienda_fuentes',label:'⚡ Fuentes de Poder'},
+                {id:'tienda_ventiladores',label:'🌀 Ventilación'},
+                {id:'tienda_cables',label:'🔌 Cables'},
+                {id:'tienda_tarjetas',label:'🖥️ Tarjetas'},
+                {id:'tienda_ir',label:'🛍️ Ir a la tienda'},
+                {id:'main',label:'⬅️ Volver'}
+            ]
+        },
+
+        tienda_ram:{
+            msg:'📦 Memoria RAM disponible:\n\n• DDR4 4GB 2400MHz — Q145\n• DDR4 8GB 2666MHz — Q275 ⭐\n• DDR4 16GB 3200MHz — Q475\n• DDR5 16GB 5600MHz — Q675 🔥\n• DDR5 32GB 4800MHz — Q875 🆕',
+            options:[
+                {id:'tienda_ir',label:'🛍️ Ver tienda'},
+                {id:'tienda_info',label:'⬅️ Volver'}
+            ]
+        },
+
+        tienda_discos:{
+            msg:'💾 Discos disponibles:\n\n• SSD SATA 240GB — Q175\n• SSD SATA 480GB — Q295\n• NVMe M.2 512GB — Q425\n• NVMe M.2 1TB — Q595 🔥\n• HDD WD Blue 1TB — Q225\n• HDD Seagate 2TB — Q395',
+            options:[
+                {id:'tienda_ir',label:'🛍️ Ver tienda'},
+                {id:'tienda_info',label:'⬅️ Volver'}
+            ]
+        },
+
+        tienda_fuentes:{
+            msg:'⚡ Fuentes de Poder:\n\n• 500W 80+ White — Q395\n• 600W 80+ — Q525\n• 800W Modular — Q795 ⭐\n• 1000W 80+ Gold — Q1,195 🏆',
+            options:[
+                {id:'tienda_ir',label:'🛍️ Ver tienda'},
+                {id:'tienda_info',label:'⬅️ Volver'}
+            ]
+        },
+
+        tienda_ventiladores:{
+            msg:'🌀 Ventilación:\n\n• Cooler 92mm — Q115\n• Cooler 120mm — Q155\n• Kit RGB 3x120mm — Q345 ⭐\n• AIO Líquido 240mm — Q695 🆕',
+            options:[
+                {id:'tienda_ir',label:'🛍️ Ver tienda'},
+                {id:'tienda_info',label:'⬅️ Volver'}
+            ]
+        },
+
+        tienda_cables:{
+            msg:'🔌 Cables disponibles:\n\n• Cable Poder AC 1.5m — Q45\n• SATA III Pack x3 — Q55 🔥\n• VGA HD15 1.8m — Q55\n• USB-C a USB-C — Q65\n• HDMI 2.1 2m — Q75\n• DisplayPort 1.4 — Q95',
+            options:[
+                {id:'tienda_ir',label:'🛍️ Ver tienda'},
+                {id:'tienda_info',label:'⬅️ Volver'}
+            ]
+        },
+
+        tienda_tarjetas:{
+            msg:'🖥️ Tarjetas disponibles:\n\n• Red Ethernet Gigabit — Q125\n• Red WiFi 6 PCIe — Q235 🆕\n• Sonido 7.1 PCIe — Q275\n• Video GTX 1650 4GB — Q1,495\n• Video RX 6600 8GB — Q2,195 🔥',
+            options:[
+                {id:'tienda_ir',label:'🛍️ Ver tienda'},
+                {id:'tienda_info',label:'⬅️ Volver'}
+            ]
+        },
+
+        tienda_ir:{msg:'🛍️ Ve a la tienda para agregar al carrito.',options:[{id:'goto_tienda',label:'🛍️ Ir ahora'},{id:'main',label:'⬅️ Volver'}]},
+        precios:{msg:'💰 Precios:\n🔹 Básico — Q150\n🔹 Completo — Q350\n🔹 Empresarial — Q800/mes\n✅ Diagnóstico GRATIS',options:[{id:'agendar_wa',label:'📱 Solicitar'},{id:'main',label:'⬅️ Volver'}]},
+        problema:{msg:'⚠️ ¿Cuál es el problema?',options:[{id:'prob_lento',label:'🐢 PC lenta'},{id:'prob_virus',label:'🦠 Virus'},{id:'prob_no',label:'🔌 No enciende'},{id:'prob_bsod',label:'💀 Pantalla azul'},{id:'main',label:'⬅️ Volver'}]},
+        prob_lento:{msg:'🐢 PC lenta:\n1️⃣ Mantenimiento — Q150\n2️⃣ Más RAM — desde Q145\n3️⃣ Cambiar a SSD — desde Q175\nRecomendado: mant. + SSD',options:[{id:'agendar_wa',label:'📱 Agendar'},{id:'problema',label:'⬅️ Volver'}]},
+        prob_virus:{msg:'🦠 Virus:\n• No abras archivos raros\n• Desconéctate de internet\nLimpieza: Q150',options:[{id:'agendar_wa',label:'📱 Agendar'},{id:'problema',label:'⬅️ Volver'}]},
+        prob_no:{msg:'🔌 No enciende:\n• Verificar cables\n• Probar otro enchufe\nDiagnóstico GRATIS',options:[{id:'agendar_wa',label:'📱 Agendar'},{id:'problema',label:'⬅️ Volver'}]},
+        prob_bsod:{msg:'💀 Pantalla azul:\n• Drivers, RAM o disco\n• Anota el código\nDiagnóstico GRATIS',options:[{id:'agendar_wa',label:'📱 Agendar'},{id:'problema',label:'⬅️ Volver'}]},
+    };
+
+    function addBot(t){const c=document.getElementById('chatMessages');const d=document.createElement('div');d.className='flex justify-start animate-slide-up';let f=t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');d.innerHTML=`<div class="flex gap-2 max-w-[90%]"><img src="${L}" class="w-7 h-7 rounded-full bg-brand-100 shrink-0 mt-1 object-contain p-0.5"><div class="chat-bubble-bot px-4 py-3"><p class="text-sm leading-relaxed">${f}</p></div></div>`;c.appendChild(d);c.scrollTop=c.scrollHeight}
+    function addUser(t){const c=document.getElementById('chatMessages');const d=document.createElement('div');d.className='flex justify-end animate-slide-up';d.innerHTML=`<div class="chat-bubble-user px-4 py-3 max-w-[80%]"><p class="text-sm leading-relaxed">${t}</p></div>`;c.appendChild(d);c.scrollTop=c.scrollHeight}
+    function renderMenu(id){const m=menus[id];if(!m)return;addBot(m.msg);const c=document.getElementById('menuButtons');c.innerHTML='';const g=document.createElement('div');g.className='grid grid-cols-2 gap-2';m.options.forEach(o=>{const b=document.createElement('button');b.className='menu-btn text-left text-xs font-medium px-3 py-2.5 rounded-xl bg-brand-50 text-brand-800 hover:bg-brand-100 border border-brand-100 transition-all truncate';b.textContent=o.label;b.onclick=()=>handleMenu(o.id,o.label);g.appendChild(b)});c.appendChild(g)}
+    function handleMenu(id,label){addUser(label);if(id==='open_whatsapp'){window.open('https://wa.me/50258415734','_blank');return}if(id==='goto_tienda'){toggleChat();setTimeout(()=>{document.getElementById('tienda').scrollIntoView({behavior:'smooth'})},400);return}const m=menus[id];if(m)setTimeout(()=>renderMenu(id),300)}
+
+    let chatOpen=false;
+    function toggleChat(){chatOpen=!chatOpen;const w=document.getElementById('chatWindow'),o=document.getElementById('chatIconOpen'),c=document.getElementById('chatIconClose'),n=document.getElementById('chatNotification');if(chatOpen){w.classList.remove('hidden-chat');w.classList.add('visible-chat');o.classList.add('hidden');c.classList.remove('hidden');n.classList.add('hidden')}else{w.classList.add('hidden-chat');w.classList.remove('visible-chat');o.classList.remove('hidden');c.classList.add('hidden')}lucide.createIcons()}
+
+    window.addEventListener('load',()=>{renderProducts();setTimeout(()=>renderMenu('main'),600)});
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth'})})});
+    </script>
 </body>
 </html>
